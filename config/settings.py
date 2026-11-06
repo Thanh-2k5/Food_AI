@@ -44,10 +44,13 @@ ALLOWED_HOSTS = [
     '0.0.0.0',
     'testserver',
     '.pythonanywhere.com',
+    '.onrender.com',
     '*',
 ]
 CSRF_TRUSTED_ORIGINS = [
     'https://*.pythonanywhere.com',
+    'https://*.onrender.com',
+    'https://*.trycloudflare.com',
 ]
 
 
@@ -98,7 +101,10 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.1/ref/settings/#databases
 
-if os.environ.get('USE_SQLITE', '').lower() in ('1', 'true', 'yes'):
+if (
+    os.environ.get('USE_SQLITE', '').lower() in ('1', 'true', 'yes')
+    or (os.environ.get('RENDER') and not os.environ.get('DB_HOST'))
+):
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',

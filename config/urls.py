@@ -16,9 +16,10 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.contrib.auth import views as auth_views
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.static import serve
 from recognition import views as recognition_views
 from recognition import page_views
 from recognition.forms import EmailOrUsernameAuthenticationForm
@@ -79,8 +80,15 @@ urlpatterns = [
     path('', include('recognition.urls')),
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(
-        settings.MEDIA_URL,
-        document_root=settings.MEDIA_ROOT
-    )
+urlpatterns += [
+    re_path(
+        r'^static/(?P<path>.*)$',
+        serve,
+        {'document_root': settings.BASE_DIR / 'static'},
+    ),
+    re_path(
+        r'^media/(?P<path>.*)$',
+        serve,
+        {'document_root': settings.MEDIA_ROOT},
+    ),
+]
