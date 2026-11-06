@@ -6,10 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from recipes.models import Recipe
 from recipes.views import (
-<<<<<<< HEAD
     MIN_RECOMMENDATIONS,
-=======
->>>>>>> origin/main
     _save_recipe_image_if_missing,
     create_recommendations_for_session,
 )
@@ -22,10 +19,7 @@ from .models import (
     RecognitionSession,
     Recommendation,
 )
-<<<<<<< HEAD
 from .views import get_active_recognition_session
-=======
->>>>>>> origin/main
 
 
 def home(request):
@@ -55,23 +49,14 @@ def register(request):
 def recommendations(request):
     if request.method == 'POST':
         request.session.pop('recommendation_error', None)
-<<<<<<< HEAD
         recognition_session = get_active_recognition_session(
             request,
             require_success=True,
         )
-=======
-        session_id = request.session.get('last_recognition_session_id')
-        recognition_session = RecognitionSession.objects.filter(
-            pk=session_id,
-            trang_thai='thanh_cong',
-        ).first()
->>>>>>> origin/main
         if recognition_session is None:
             request.session['recommendation_error'] = (
                 'Hãy nhận diện nguyên liệu thành công trước khi yêu cầu gợi ý.'
             )
-<<<<<<< HEAD
         elif (
             Recommendation.objects.filter(
                 phien_nhan_dien=recognition_session,
@@ -79,12 +64,6 @@ def recommendations(request):
             ).count()
             < MIN_RECOMMENDATIONS
         ):
-=======
-        elif not Recommendation.objects.filter(
-            phien_nhan_dien=recognition_session,
-            mon_an__isnull=False,
-        ).exists():
->>>>>>> origin/main
             try:
                 create_recommendations_for_session(recognition_session)
             except ValueError as error:
@@ -93,7 +72,6 @@ def recommendations(request):
                 request.session.pop('recommendation_error', None)
         return redirect('recommendations')
 
-<<<<<<< HEAD
     recognition_session = get_active_recognition_session(request)
     recommendations = Recommendation.objects.none()
     detected_ingredients = []
@@ -115,18 +93,6 @@ def recommendations(request):
                 create_recommendations_for_session(recognition_session)
             except ValueError:
                 pass
-=======
-    session_id = request.session.get('last_recognition_session_id')
-    recognition_session = None
-    recommendations = Recommendation.objects.none()
-    detected_ingredients = []
-    browse_recipes = Recipe.objects.none()
-    if session_id is not None:
-        recognition_session = RecognitionSession.objects.filter(
-            pk=session_id
-        ).first()
-        if recognition_session is not None:
->>>>>>> origin/main
             recommendations = list(
                 Recommendation.objects.filter(
                     phien_nhan_dien=recognition_session,
@@ -135,7 +101,6 @@ def recommendations(request):
                 .select_related('mon_an')
                 .prefetch_related('mon_an__thanh_phan__thuc_pham')
             )
-<<<<<<< HEAD
         for item in recommendations:
             _save_recipe_image_if_missing(item.mon_an)
         detected_ingredients = list(
@@ -143,15 +108,6 @@ def recommendations(request):
                 phien_nhan_dien=recognition_session
             ).select_related('thuc_pham')
         )
-=======
-            for item in recommendations:
-                _save_recipe_image_if_missing(item.mon_an)
-            detected_ingredients = list(
-                DetectedIngredient.objects.filter(
-                    phien_nhan_dien=recognition_session
-                ).select_related('thuc_pham')
-            )
->>>>>>> origin/main
     if recognition_session is None:
         browse_recipes = list(
             Recipe.objects.filter(dang_su_dung=True)
