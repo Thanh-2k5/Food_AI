@@ -13,7 +13,7 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.db import transaction
 from django.shortcuts import render
-from PIL import Image, ImageDraw, ImageFont, UnidentifiedImageError
+from PIL import Image, ImageDraw, ImageFont, ImageOps, UnidentifiedImageError
 
 from recipes.models import Ingredient
 from recipes.ingredient_utils import normalize_ingredient_name
@@ -340,6 +340,8 @@ def _xkiro_ingredients(image_bytes, image_format):
 
     mime_type = {
         'JPEG': 'image/jpeg',
+        'JPG': 'image/jpeg',
+        'MPO': 'image/jpeg',
         'PNG': 'image/png',
         'WEBP': 'image/webp',
     }.get(image_format)
@@ -504,10 +506,22 @@ def _detect_ingredients(uploaded_file):
         raise ValueError('Tệp tải lên không phải là ảnh hợp lệ.') from error
 
     image_format = image.format
+    try:
+        image = ImageOps.exif_transpose(image)
+    except Exception:
+        pass
     image = image.convert('RGB')
+    if max(image.size) > 1600:
+        image.thumbnail((1600, 1600), Image.Resampling.LANCZOS)
+        buf = BytesIO()
+        image.save(buf, format='JPEG', quality=88)
+        image_bytes = buf.getvalue()
+        image_format = 'JPEG'
+    else:
+        uploaded_file.seek(0)
+        image_bytes = uploaded_file.read()
     width, height = image.size
-    uploaded_file.seek(0)
-    ingredients = _xkiro_ingredients(uploaded_file.read(), image_format)
+    ingredients = _xkiro_ingredients(image_bytes, image_format)
 
     line_width = max(2, round(min(width, height) * 0.005))
     grouped = {}
