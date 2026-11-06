@@ -1,0 +1,10 @@
+{% if user.is_authenticated %}
+    <span>Xin chào, {{ user.username }}</span>
+    <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button class="login login-link" type="submit">Đăng xuất</button>
+    </form>
+{% else %}
+    <a class="login login-link" href="{% url 'login' %}">Đăng nhập</a>
+    <a class="login login-link" href="{% url 'register' %}">Đăng ký</a>
+{% endif %}

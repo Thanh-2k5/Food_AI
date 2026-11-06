@@ -1,0 +1,197 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ReciScan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+</head>
+<body>
+    <header class="topbar">
+        <div class="container topbar-inner">
+            <a class="brand" href="/" aria-label="FoodGenie brand">
+                <span class="brand-mark" aria-hidden="true"><i class="bi bi-egg-fried"></i></span>
+                <span class="brand-text">FoodGenie</span>
+            </a>
+
+            <nav class="nav" aria-label="Main navigation">
+                <a class="active" href="/">Trang chủ</a>
+                <a href="/detect/">Nhận diện nguyên liệu</a>
+                <a href="/recommendations/">Gợi ý món ăn</a>
+                <a href="/favorites/">Yêu thích</a>
+                <a href="/history/">Lịch sử</a>
+            </nav>
+
+            <div class="header-actions">
+                {% include 'account_actions.html' %}
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container hero-inner">
+                <div class="hero-visual" aria-hidden="true">
+                    <div class="hero-collage">
+                        <div class="crop"><img src="{% get_media_prefix %}mon_an/salad_rau_cu_tuoi.jpg" alt="Salad rau củ tươi"></div>
+                        <div class="crop"><img src="{% get_media_prefix %}mon_an/thit_ga_xao_nam.jpg" alt="Thịt gà xào nấm"></div>
+                        <div class="crop"><img src="{% get_media_prefix %}mon_an/trung_chien_cuon_rau_cu.jpg" alt="Trứng chiên cuộn rau củ"></div>
+                        <div class="crop"><img src="{% get_media_prefix %}mon_an/pho_ga_ha_noi.jpg" alt="Phở gà Hà Nội"></div>
+                    </div>
+                </div>
+
+                <div class="hero-content">
+                    <h1 class="hero-title">Tải lên ảnh nguyên liệu – Gợi ý ngay thực đơn!</h1>
+                    <p class="hero-subtitle">
+                        Chụp ảnh nguyên liệu bạn đang có, từ rau củ, thịt, trứng đến hải sản,
+                        sau đó để ReciScan đề xuất món ăn phù hợp và dễ thực hiện nhất.
+                    </p>
+
+                    <div class="upload-box">
+                        <a class="upload-label" href="{% url 'detect' %}">
+                            <span>Nhận diện nguyên liệu và gợi ý món ăn ngay</span>
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+
+                    <div class="steps">
+                        <div class="step-item">
+                            <div class="step-icon"><i class="bi bi-camera"></i></div>
+                            <strong>1. Chụp ảnh<br>Nguyên liệu sau có sẵn</strong>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-icon"><i class="bi bi-search"></i></div>
+                            <strong>2. Hệ thống phân tích<br>hình ảnh</strong>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-icon"><i class="bi bi-graph-up-arrow"></i></div>
+                            <strong>3. Lọc &amp; chọn lọc<br>món ăn phù hợp</strong>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-icon"><i class="bi bi-egg-fried"></i></div>
+                            <strong>4. Gợi ý món ăn<br>cùng thực đơn</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="hero-visual" aria-hidden="true">
+                    <div class="hero-collage">
+                        <div class="crop"><img src="{% get_media_prefix %}mon_an/my_y_carbonara.jpg" alt="Mì Ý Carbonara"></div>
+                        <div class="crop"><img src="{% get_media_prefix %}mon_an/thit_kho_tau.jpg" alt="Thịt kho tàu"></div>
+                        <div class="crop"><img src="{% get_media_prefix %}mon_an/thit_kho_tieu.jpg" alt="Thịt kho tiêu"></div>
+                        <div class="crop"><img src="{% get_media_prefix %}mon_an/thit_kho_rau_cu.jpg" alt="Thịt kho rau củ"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <h2 class="section-heading">Món ăn phổ biến hôm nay</h2>
+
+                <div class="recipe-grid">
+                    <article class="recipe-card">
+                        <img src="{% get_media_prefix %}mon_an/pho_ga_ha_noi.jpg" alt="Phở Gà Hà Nội">
+                        <div class="recipe-card-body">
+                            <h3 class="recipe-title">Phở Gà Hà Nội</h3>
+                            <div class="recipe-meta">
+                                <span><i class="bi bi-clock"></i> 30 phút</span>
+                                <span><i class="bi bi-fire"></i> Trung bình</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="recipe-card">
+                        <img src="{% get_media_prefix %}mon_an/salad_rau_cu_tuoi.jpg" alt="Salad Rau Củ Tươi">
+                        <div class="recipe-card-body">
+                            <h3 class="recipe-title">Salad Rau Củ Tươi</h3>
+                            <div class="recipe-meta">
+                                <span><i class="bi bi-clock"></i> 15 phút</span>
+                                <span><i class="bi bi-sun"></i> Dễ</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="recipe-card">
+                        <img src="{% get_media_prefix %}mon_an/thit_kho_tau.jpg" alt="Thịt Kho Tàu">
+                        <div class="recipe-card-body">
+                            <h3 class="recipe-title">Thịt Kho Tàu</h3>
+                            <div class="recipe-meta">
+                                <span><i class="bi bi-clock"></i> 60 phút</span>
+                                <span><i class="bi bi-people"></i> Khó</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="recipe-card">
+                        <img src="{% get_media_prefix %}mon_an/my_y_carbonara.jpg" alt="Mì Ý Carbonara">
+                        <div class="recipe-card-body">
+                            <h3 class="recipe-title">Mì Ý Carbonara</h3>
+                            <div class="recipe-meta">
+                                <span><i class="bi bi-clock"></i> 25 phút</span>
+                                <span><i class="bi bi-emoji-smile"></i> Dễ</span>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="section">
+            <div class="container">
+                <h2 class="section-heading">Cách ReciScan Hoạt động:</h2>
+
+                <div class="workflow">
+                    <div class="workflow-step">
+                        <img src="{% get_media_prefix %}mon_an/salad_rau_cu_tuoi.jpg" alt="Rau củ">
+                        <p>Cà chua</p>
+                    </div>
+
+                    <div class="workflow-step">
+                        <img src="{% get_media_prefix %}mon_an/trung_chien_cuon_rau_cu.jpg" alt="Trứng">
+                        <p>Trứng</p>
+                    </div>
+
+                    <div class="workflow-step">
+                        <img src="{% get_media_prefix %}mon_an/thit_ga_xao_nam.jpg" alt="Gà">
+                        <p>Gà</p>
+                    </div>
+
+                    <span class="arrow" aria-hidden="true"><i class="bi bi-arrow-right"></i></span>
+
+                    <div class="ai-box">
+                        <div>
+                            <i class="bi bi-cpu"></i>
+                            <span>RECI<span style="color: var(--green);">SCAN</span> AI</span>
+                        </div>
+                    </div>
+
+                    <span class="arrow" aria-hidden="true"><i class="bi bi-arrow-right"></i></span>
+
+                    <div class="workflow-step">
+                        <img src="{% get_media_prefix %}mon_an/thit_kho_tau.jpg" alt="Món ăn gợi ý">
+                        <p>Thịt kho tàu</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container footer-inner">
+            <div>© 2023 ReciScan - Dự án xây dựng hệ thống gợi ý món ăn.</div>
+            <div class="footer-social" aria-label="Social media">
+                <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                <a href="#" aria-label="X"><i class="bi bi-twitter-x"></i></a>
+                <a href="#" aria-label="Mail"><i class="bi bi-envelope"></i></a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

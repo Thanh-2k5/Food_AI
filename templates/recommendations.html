@@ -1,0 +1,58 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>FoodGenie | Gợi ý món ăn</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="{% static 'css/recommendations.css' %}">
+</head>
+<body>
+	<header class="topbar"><div class="container topbar-inner"><a class="brand" href="/"><span class="brand-mark"><i class="bi bi-egg-fried"></i></span><strong>FoodGenie</strong></a><nav class="nav"><a href="/">Trang chủ</a><a href="/detect/">Nhận diện nguyên liệu</a><a class="active" href="/recommendations/">Gợi ý món ăn</a><a href="/favorites/">Yêu thích</a><a href="/history/">Lịch sử</a></nav>{% include 'account_actions.html' %}</div></header>
+	<main class="page container">
+		<div class="heading"><span class="eyebrow"><i class="bi bi-stars"></i> FOODGENIE RECOMMENDATION</span><h1>Trang gợi ý món ăn</h1><p>Dựa trên nguyên liệu của bạn, chúng tôi gợi ý những món ăn sau:</p></div>
+		{% if recognition_session %}
+		<section class="detected-summary" aria-label="Nguyên liệu đã nhận diện">
+			<h2>Nguyên liệu của bạn</h2>
+			<ul>{% for ingredient in detected_ingredients %}<li>{{ ingredient.ten_da_nhan_dien }}</li>{% empty %}<li>Không nhận diện được nguyên liệu nào.</li>{% endfor %}</ul>
+		</section>
+		{% endif %}
+		{% if recommendation_error %}
+		<p class="recommendation-message error" role="alert">{{ recommendation_error }}</p>
+		{% endif %}
+		{% if recommendations %}
+		<section class="recommendation-list" aria-label="Danh sách món ăn gợi ý">
+			{% for recommendation in recommendations %}
+			<article class="suggestion-card">
+				<a class="recipe-tile" href="{% url 'recipe_detail' recommendation.mon_an.pk %}" aria-label="Xem chi tiết {{ recommendation.mon_an.ten_mon }}">
+					{% if recommendation.mon_an.anh_mon %}<img class="suggestion-image" src="{{ recommendation.mon_an.anh_mon.url }}" alt="{{ recommendation.mon_an.ten_mon }}">{% elif recommendation.mon_an.anh_mon_url %}<img class="suggestion-image" src="{{ recommendation.mon_an.anh_mon_url }}" alt="{{ recommendation.mon_an.ten_mon }}" loading="lazy">{% endif %}
+					<h2>{{ recommendation.mon_an.ten_mon }}</h2>
+				</a>
+			</article>
+			{% endfor %}
+		</section>
+		{% elif browse_recipes %}
+		<section class="recommendation-list" aria-label="Một số món ăn">
+			{% for recipe in browse_recipes %}
+			<article class="suggestion-card">
+				<a class="recipe-tile" href="{% url 'recipe_detail' recipe.pk %}" aria-label="Xem chi tiết {{ recipe.ten_mon }}">
+					{% if recipe.anh_mon %}<img class="suggestion-image" src="{{ recipe.anh_mon.url }}" alt="{{ recipe.ten_mon }}">{% elif recipe.anh_mon_url %}<img class="suggestion-image" src="{{ recipe.anh_mon_url }}" alt="{{ recipe.ten_mon }}" loading="lazy">{% endif %}
+					<h2>{{ recipe.ten_mon }}</h2>
+				</a>
+			</article>
+			{% endfor %}
+		</section>
+		{% elif recommendation_error %}
+		{% elif recognition_session %}
+		<p class="recommendation-message">Bạn đã nhận diện nguyên liệu. Nhấn nút “Gợi ý món ăn” trên trang nhận diện để tìm món phù hợp.</p>
+		{% else %}
+		<p class="recommendation-message">Hãy tải ảnh nguyên liệu lên trang <a href="{% url 'detect' %}">nhận diện nguyên liệu</a> để nhận gợi ý món ăn.</p>
+		{% endif %}
+	</main>
+	<footer><div class="container">© 2023 ReciScan · Dự án Xây dựng Hệ thống Gợi ý Món ăn <span>●　●　☎　✉</span></div></footer>
+</body>
+</html>

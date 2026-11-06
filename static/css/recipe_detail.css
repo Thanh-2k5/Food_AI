@@ -1,0 +1,557 @@
+:root {
+	--brown-header: #82441e;
+	--brown-dark: #3b2010;
+	--brown-accent: #9c4d1e;
+	--cream-bg: #f9f1e5;
+	--cream-pill: #faefe0;
+	--cream-border: #eadbc6;
+	--ink: #2c1d13;
+	--muted: #6e5746;
+	--paper: #f3ede4;
+	--surface: #ffffff;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	background: var(--paper);
+	color: var(--ink);
+	font-family: 'Be Vietnam Pro', sans-serif;
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+}
+
+a {
+	text-decoration: none;
+	color: inherit;
+}
+
+.container {
+	width: min(1180px, calc(100% - 32px));
+	margin: 0 auto;
+}
+
+/* Warm Brown Topbar matching reference design */
+.topbar {
+	height: 64px;
+	background: linear-gradient(90deg, #743916 0%, #8b471f 55%, #783c18 100%);
+	color: #fff8f0;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+	position: sticky;
+	top: 0;
+	z-index: 20;
+	box-shadow: 0 4px 16px rgba(59, 32, 16, 0.18);
+}
+
+.topbar-inner {
+	height: 100%;
+	display: flex;
+	align-items: center;
+	gap: 28px;
+}
+
+.brand {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	font-size: 20px;
+	color: #fff;
+	white-space: nowrap;
+}
+
+.brand strong {
+	font-family: 'Playfair Display', Georgia, serif;
+	letter-spacing: 0.02em;
+}
+
+.brand-mark {
+	width: 36px;
+	height: 36px;
+	display: grid;
+	place-items: center;
+	background: #fff3e4;
+	border-radius: 50%;
+	color: var(--brown-header);
+	font-size: 19px;
+}
+
+.nav {
+	display: flex;
+	justify-content: center;
+	gap: 28px;
+	flex: 1;
+	font-size: 14px;
+	font-weight: 500;
+}
+
+.nav a {
+	padding: 21px 0 18px;
+	color: rgba(255, 248, 240, 0.9);
+	border-bottom: 3px solid transparent;
+	transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.nav a:hover {
+	color: #ffffff;
+	border-color: #f6c992;
+}
+
+.topbar .login,
+.topbar .account-actions,
+.topbar .account-actions span,
+.topbar .account-actions a,
+.topbar-inner > span {
+	color: #fff8f0 !important;
+	font-size: 13px;
+	font-weight: 600;
+	white-space: nowrap;
+}
+
+.topbar-inner form {
+	margin: 0;
+}
+
+.login-link {
+	color: #fff8f0 !important;
+	font-weight: 600;
+	padding: 6px 12px;
+	border-radius: 8px;
+	border: 1px solid rgba(255, 248, 240, 0.32);
+	background: rgba(255, 255, 255, 0.12);
+	cursor: pointer;
+}
+
+.login-link:hover {
+	background: rgba(255, 255, 255, 0.24);
+}
+
+.page {
+	flex: 1;
+	padding: 0 0 48px;
+}
+
+.recipe-showcase {
+	background: var(--surface);
+	border-radius: 0 0 20px 20px;
+	overflow: hidden;
+	box-shadow: 0 14px 40px rgba(59, 32, 16, 0.12);
+	border: 1px solid var(--cream-border);
+	border-top: 0;
+}
+
+/* Full-width Top Food Banner displaying entire dish photo */
+.hero-banner {
+	position: relative;
+	width: 100%;
+	height: 410px;
+	background: #2b180c;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+}
+
+.hero-banner.no-image {
+	height: 90px;
+	background: linear-gradient(90deg, #5e2f13, #82441e);
+}
+
+.hero-backdrop {
+	position: absolute;
+	inset: -24px;
+	background-position: center;
+	background-size: cover;
+	filter: blur(22px) brightness(0.55) saturate(1.15);
+	transform: scale(1.08);
+	z-index: 1;
+}
+
+.hero-main-img {
+	position: relative;
+	z-index: 2;
+	max-width: 100%;
+	height: 100%;
+	width: auto;
+	object-fit: contain;
+	filter: drop-shadow(0 10px 28px rgba(0, 0, 0, 0.45));
+}
+
+.back-pill {
+	position: absolute;
+	top: 18px;
+	left: 22px;
+	z-index: 5;
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+	padding: 8px 15px;
+	border-radius: 999px;
+	background: rgba(43, 24, 12, 0.68);
+	backdrop-filter: blur(8px);
+	border: 1px solid rgba(255, 243, 228, 0.3);
+	color: #fff9f2;
+	font-size: 13px;
+	font-weight: 600;
+	transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.back-pill:hover {
+	background: rgba(43, 24, 12, 0.88);
+	transform: translateX(-2px);
+}
+
+/* Warm Cream Title Strip */
+.title-strip {
+	background: var(--cream-bg);
+	border-top: 1px solid var(--cream-border);
+	border-bottom: 1px solid var(--cream-border);
+	padding: 26px 46px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 24px;
+	flex-wrap: wrap;
+}
+
+.title-strip-main {
+	flex: 1;
+	min-width: 280px;
+}
+
+.title-strip h1 {
+	margin: 0 0 12px;
+	font-family: 'Playfair Display', Georgia, serif;
+	font-size: 38px;
+	font-weight: 800;
+	line-height: 1.18;
+	color: var(--brown-dark);
+}
+
+.meta-bar {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 20px;
+	color: #5c3d28;
+	font-size: 15px;
+	font-weight: 600;
+}
+
+.meta-item {
+	display: inline-flex;
+	align-items: center;
+	gap: 7px;
+}
+
+.meta-item i {
+	color: #b45b24;
+	font-size: 16px;
+}
+
+.meta-icons {
+	gap: 10px;
+	padding-left: 6px;
+	border-left: 1px solid #dcc7af;
+	color: #9e5a2c;
+}
+
+.recipe-summary {
+	margin: 12px 0 0;
+	color: var(--muted);
+	font-size: 14.5px;
+	line-height: 1.6;
+	max-width: 780px;
+}
+
+.title-strip .recipe-account-actions {
+	margin: 0;
+}
+
+.title-strip .favorite-button {
+	padding: 10px 18px;
+	border-radius: 999px;
+	border: 1.5px solid var(--brown-accent);
+	background: #fffdf9;
+	color: var(--brown-accent);
+	font-size: 13.5px;
+	font-weight: 700;
+	box-shadow: 0 3px 10px rgba(130, 68, 30, 0.08);
+	transition: all 0.2s ease;
+}
+
+.title-strip .favorite-button.is-favorite,
+.title-strip .favorite-button:hover {
+	background: var(--brown-accent);
+	color: #fff;
+}
+
+/* Two-Column Content Area: Nguyên liệu (Left) & Cách nấu (Right) */
+.details-grid {
+	display: grid;
+	grid-template-columns: minmax(290px, 0.82fr) minmax(420px, 1.45fr);
+	background: var(--surface);
+	padding: 34px 46px 46px;
+	gap: 40px;
+}
+
+.panel {
+	background: transparent;
+	border: 0;
+	box-shadow: none;
+	padding: 0;
+}
+
+.ingredients.panel {
+	padding-right: 36px;
+	border-right: 1px solid #eee2d3;
+}
+
+.panel h2 {
+	margin: 0 0 22px;
+	font-family: 'Playfair Display', Georgia, serif;
+	font-size: 28px;
+	font-weight: 700;
+	color: var(--brown-dark);
+}
+
+/* Interactive Ingredient Checklist */
+.ingredient-checklist {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 13px;
+}
+
+.check-item {
+	display: flex;
+	align-items: flex-start;
+	gap: 12px;
+	cursor: pointer;
+	font-size: 15.5px;
+	line-height: 1.45;
+	color: #2f1f14;
+	user-select: none;
+}
+
+.check-item input[type="checkbox"] {
+	position: absolute;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.check-box {
+	width: 20px;
+	height: 20px;
+	margin-top: 1px;
+	flex-shrink: 0;
+	border: 1.8px solid #cbb7a1;
+	border-radius: 5px;
+	background: #fffdfb;
+	display: grid;
+	place-items: center;
+	transition: all 0.16s ease;
+}
+
+.check-box::after {
+	content: "";
+	width: 10px;
+	height: 5px;
+	border-left: 2px solid #fff;
+	border-bottom: 2px solid #fff;
+	transform: rotate(-45deg) scale(0);
+	transition: transform 0.15s ease;
+	margin-top: -2px;
+}
+
+.check-item input[type="checkbox"]:checked + .check-box {
+	background: var(--brown-accent);
+	border-color: var(--brown-accent);
+}
+
+.check-item input[type="checkbox"]:checked + .check-box::after {
+	transform: rotate(-45deg) scale(1);
+}
+
+.check-item input[type="checkbox"]:checked ~ .check-label {
+	text-decoration: line-through;
+	color: #9c897a;
+}
+
+.check-label strong {
+	font-weight: 700;
+	color: #23140b;
+}
+
+.check-label em {
+	font-style: normal;
+	color: #8c7360;
+	font-size: 13.5px;
+}
+
+/* Visual Cooking Steps Grid matching mockup */
+.steps-visual-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 26px 20px;
+	align-items: start;
+}
+
+.step-card {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.step-visual {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	min-height: 76px;
+	padding: 4px 6px;
+}
+
+.step-badge {
+	width: 28px;
+	height: 28px;
+	flex-shrink: 0;
+	border-radius: 50%;
+	background: #8c4319;
+	color: #fff;
+	font-size: 13.5px;
+	font-weight: 700;
+	display: grid;
+	place-items: center;
+	box-shadow: 0 3px 8px rgba(140, 67, 25, 0.25);
+}
+
+.step-illustration {
+	width: 88px;
+	height: 66px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.step-illustration svg {
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+}
+
+.step-caption {
+	background: var(--cream-pill);
+	border: 1px solid #f0dec6;
+	border-radius: 12px;
+	padding: 12px 14px;
+	font-size: 14.5px;
+	line-height: 1.55;
+	color: #362214;
+	box-shadow: 0 2px 6px rgba(92, 52, 24, 0.04);
+}
+
+.step-number-inline {
+	font-weight: 700;
+	color: var(--brown-accent);
+	margin-right: 4px;
+}
+
+.empty-note,
+.empty-recipe-box {
+	padding: 28px 0;
+	color: var(--muted);
+}
+
+footer {
+	padding: 14px 0;
+	background: #2b180c;
+	color: #e9dccf;
+	font-size: 12px;
+}
+
+footer span {
+	float: right;
+}
+
+@media (max-width: 980px) {
+	.nav {
+		display: none;
+	}
+
+	.topbar-inner {
+		justify-content: space-between;
+	}
+
+	.hero-banner {
+		height: 330px;
+	}
+
+	.title-strip {
+		padding: 22px 26px;
+	}
+
+	.details-grid {
+		grid-template-columns: 1fr;
+		padding: 26px;
+		gap: 30px;
+	}
+
+	.ingredients.panel {
+		padding-right: 0;
+		padding-bottom: 26px;
+		border-right: 0;
+		border-bottom: 1px solid #eee2d3;
+	}
+
+	.steps-visual-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 580px) {
+	.container {
+		width: 100%;
+	}
+
+	.recipe-showcase {
+		border-radius: 0;
+		border-left: 0;
+		border-right: 0;
+	}
+
+	.hero-banner {
+		height: 250px;
+	}
+
+	.title-strip {
+		padding: 18px 20px;
+	}
+
+	.title-strip h1 {
+		font-size: 28px;
+	}
+
+	.details-grid {
+		padding: 20px;
+	}
+
+	.steps-visual-grid {
+		grid-template-columns: 1fr;
+	}
+
+	footer {
+		text-align: center;
+	}
+
+	footer span {
+		float: none;
+		display: block;
+		margin-top: 5px;
+	}
+}

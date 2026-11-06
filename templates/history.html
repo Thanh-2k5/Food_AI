@@ -1,0 +1,46 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>FoodGenie | Lịch sử món ăn</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="{% static 'css/history.css' %}">
+	<link rel="stylesheet" href="{% static 'css/saved_recipes.css' %}">
+</head>
+<body>
+	<header class="topbar"><div class="container topbar-inner"><a class="brand" href="/"><span class="brand-mark"><i class="bi bi-egg-fried"></i></span><strong>FoodGenie</strong></a><nav class="nav"><a href="/">Trang chủ</a><a href="/detect/">Nhận diện nguyên liệu</a><a href="/recommendations/">Gợi ý món ăn</a><a href="/favorites/">Yêu thích</a><a class="active" href="/history/">Lịch sử</a></nav>{% include 'account_actions.html' %}</div></header>
+	<main>
+		<section class="history-hero"><div class="container hero-inner"><div><span class="eyebrow">FOODGENIE JOURNAL</span><h1>Lịch sử món ăn của bạn</h1><p>Các món bạn đã xem gần đây.</p></div><div class="stats"><h2>Thống kê</h2><p>Tổng số món đã xem: <b>{{ history_count }}</b></p></div></div></section>
+		<section class="container history-list">
+			{% if history_items %}
+			<div class="history-grid">
+				{% for item in history_items %}
+				<article class="history-card">
+					<a class="history-card-image" href="{% url 'recipe_detail' item.recipe.pk %}">
+						{% if item.recipe.anh_mon %}<img src="{{ item.recipe.anh_mon.url }}" alt="{{ item.recipe.ten_mon }}">{% elif item.recipe.anh_mon_url %}<img src="{{ item.recipe.anh_mon_url }}" alt="{{ item.recipe.ten_mon }}" loading="lazy">{% else %}<span class="no-image"><i class="bi bi-egg-fried"></i></span>{% endif %}
+					</a>
+					<div class="history-card-content">
+						<h2><a href="{% url 'recipe_detail' item.recipe.pk %}">{{ item.recipe.ten_mon }}</a></h2>
+						<p><i class="bi bi-clock"></i> Xem lần cuối: {{ item.last_viewed_at|date:"d/m/Y H:i" }}</p>
+						<p><i class="bi bi-hourglass-split"></i> {{ item.recipe.thoi_gian_nau }} phút · {{ item.recipe.get_do_kho_display }}</p>
+						<form method="post" action="{% url 'remove_history' item.pk %}">
+							{% csrf_token %}
+							<button type="submit"><i class="bi bi-trash3"></i> Xóa khỏi lịch sử</button>
+						</form>
+					</div>
+				</article>
+				{% endfor %}
+			</div>
+			{% else %}
+			<div class="empty-state"><i class="bi bi-clock-history"></i><h2>Chưa có lịch sử món ăn</h2><p>Món ăn bạn mở xem sẽ được lưu tại đây.</p><a href="{% url 'recommendations' %}">Khám phá món ăn</a></div>
+			{% endif %}
+		</section>
+	</main>
+	<footer><div class="container">© 2026 FoodGenie · Gợi ý món ăn theo nguyên liệu</div></footer>
+</body>
+</html>

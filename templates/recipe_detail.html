@@ -1,0 +1,185 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{% if recipe %}FoodGenie | {{ recipe.ten_mon }}{% else %}FoodGenie | Chi tiết món ăn{% endif %}</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="{% static 'css/recipe_detail.css' %}">
+	<link rel="stylesheet" href="{% static 'css/saved_recipes.css' %}">
+</head>
+<body>
+	<header class="topbar">
+		<div class="container topbar-inner">
+			<a class="brand" href="/">
+				<span class="brand-mark"><i class="bi bi-egg-fried"></i></span>
+				<strong>FoodGenie</strong>
+			</a>
+			<nav class="nav">
+				<a href="/">Trang chủ</a>
+				<a href="/detect/">Nhận diện nguyên liệu</a>
+				<a href="/recommendations/">Gợi ý món ăn</a>
+				<a href="/favorites/">Yêu thích</a>
+				<a href="/history/">Lịch sử</a>
+			</nav>
+			{% include 'account_actions.html' %}
+		</div>
+	</header>
+
+	<main class="page">
+		{% if recipe %}
+		<article class="recipe-showcase container">
+			<div class="hero-banner{% if not recipe.anh_mon and not recipe.anh_mon_url %} no-image{% endif %}">
+				<a class="back-pill" href="{% url 'recommendations' %}">
+					<i class="bi bi-arrow-left"></i> Quay lại danh sách món ăn
+				</a>
+				{% if recipe.anh_mon %}
+				<div class="hero-backdrop" style="background-image: url('{{ recipe.anh_mon.url }}');"></div>
+				<img class="hero-main-img" src="{{ recipe.anh_mon.url }}" alt="{{ recipe.ten_mon }}">
+				{% elif recipe.anh_mon_url %}
+				<div class="hero-backdrop" style="background-image: url('{{ recipe.anh_mon_url }}');"></div>
+				<img class="hero-main-img" src="{{ recipe.anh_mon_url }}" alt="{{ recipe.ten_mon }}" loading="lazy">
+				{% endif %}
+			</div>
+
+			<section class="title-strip">
+				<div class="title-strip-main">
+					<h1>{{ recipe.ten_mon }}</h1>
+					<div class="meta-bar">
+						<span class="meta-item">
+							<i class="bi bi-clock"></i> {{ recipe.thoi_gian_nau }} phút
+						</span>
+						<span class="meta-item">
+							<i class="bi bi-award-fill"></i> {{ recipe.get_do_kho_display }}
+						</span>
+						<span class="meta-item">
+							<i class="bi bi-people-fill"></i> {{ recipe.so_khau_phan }} người ăn
+						</span>
+						<span class="meta-item meta-icons" aria-hidden="true">
+							<i class="bi bi-grid-fill"></i>
+							<i class="bi bi-fork-knife"></i>
+						</span>
+					</div>
+					{% if recipe.mo_ta %}
+					<p class="recipe-summary">{{ recipe.mo_ta }}</p>
+					{% endif %}
+				</div>
+
+				<div class="recipe-account-actions">
+					{% if user.is_authenticated %}
+					<form method="post" action="{% url 'toggle_favorite' recipe.pk %}">
+						{% csrf_token %}
+						<button class="favorite-button{% if is_favorite %} is-favorite{% endif %}" type="submit">
+							<i class="bi {% if is_favorite %}bi-heart-fill{% else %}bi-heart{% endif %}" aria-hidden="true"></i>
+							{% if is_favorite %}Bỏ yêu thích{% else %}Thêm vào yêu thích{% endif %}
+						</button>
+					</form>
+					{% else %}
+					<a class="favorite-button" href="{% url 'login' %}?next={{ request.path|urlencode }}">
+						<i class="bi bi-heart" aria-hidden="true"></i> Đăng nhập để lưu yêu thích
+					</a>
+					{% endif %}
+				</div>
+			</section>
+
+			<div class="details-grid">
+				<section class="ingredients panel">
+					<h2>Nguyên liệu</h2>
+					<ul class="ingredient-checklist">
+						{% for item in recipe.thanh_phan.all %}
+						<li>
+							<label class="check-item">
+								<input type="checkbox">
+								<span class="check-box" aria-hidden="true"></span>
+								<span class="check-label">
+									{% if item.so_luong %}<strong>{{ item.so_luong|floatformat:"-2" }}{% if item.don_vi %} {{ item.don_vi }}{% endif %}</strong> {% elif item.don_vi %}<strong>{{ item.don_vi }}</strong> {% endif %}{{ item.thuc_pham.ten_thuc_pham }}{% if item.la_tuy_chon %} <em>(tùy chọn)</em>{% endif %}
+								</span>
+							</label>
+						</li>
+						{% empty %}
+						<li class="empty-note">Chưa có thông tin nguyên liệu.</li>
+						{% endfor %}
+					</ul>
+				</section>
+
+				<section class="instructions panel">
+					<h2>Cách nấu</h2>
+					{% if cooking_steps %}
+					<div class="steps-visual-grid">
+						{% for step in cooking_steps %}
+						<div class="step-card">
+							<div class="step-visual">
+								<span class="step-badge">{{ step.number }}</span>
+								<div class="step-illustration" aria-hidden="true">
+									{% if step.kind == 'prep' %}
+									<svg viewBox="0 0 96 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<path d="M12 52L46 64L84 44L50 32L12 52Z" fill="#E3B788" stroke="#6B3A1E" stroke-width="2.5" stroke-linejoin="round"/>
+										<path d="M12 52V56L46 68L84 48V44" fill="#C99563" stroke="#6B3A1E" stroke-width="2.5" stroke-linejoin="round"/>
+										<rect x="30" y="22" width="34" height="22" rx="6" transform="rotate(-12 30 22)" fill="#E06D62" stroke="#6B3A1E" stroke-width="2.5"/>
+										<path d="M35 28L60 22M37 34L62 28" stroke="#F9D5CE" stroke-width="2.5" stroke-linecap="round"/>
+										<circle cx="24" cy="18" r="2" fill="#8B4A24"/>
+										<circle cx="70" cy="20" r="2" fill="#8B4A24"/>
+										<circle cx="64" cy="12" r="1.5" fill="#D4883A"/>
+									</svg>
+									{% elif step.kind == 'sauce' %}
+									<svg viewBox="0 0 96 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<path d="M24 36C24 50 34 60 48 60C62 60 72 50 72 36H24Z" fill="#F5EDE2" stroke="#6B3A1E" stroke-width="2.5" stroke-linejoin="round"/>
+										<ellipse cx="48" cy="36" rx="24" ry="7" fill="#FFFDF9" stroke="#6B3A1E" stroke-width="2.5"/>
+										<ellipse cx="48" cy="37" rx="19" ry="4.5" fill="#9E471E"/>
+										<path d="M54 34L74 14C76 12 79 15 77 17L57 36" fill="#D7DCE0" stroke="#6B3A1E" stroke-width="2.5" stroke-linecap="round"/>
+										<path d="M18 20L21 26L27 29L21 32L18 38L15 32L9 29L15 26L18 20Z" fill="#E6B450"/>
+									</svg>
+									{% elif step.kind == 'cook' %}
+									<svg viewBox="0 0 96 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<path d="M22 36C22 51 33 61 48 61C63 61 74 51 74 36H22Z" fill="#C86D3B" stroke="#6B3A1E" stroke-width="2.5"/>
+										<path d="M15 36H81" stroke="#6B3A1E" stroke-width="3" stroke-linecap="round"/>
+										<ellipse cx="48" cy="36" rx="26" ry="6" fill="#F4A259" stroke="#6B3A1E" stroke-width="2.5"/>
+										<path d="M36 24C34 20 38 16 36 12" stroke="#B08968" stroke-width="2.5" stroke-linecap="round"/>
+										<path d="M48 22C46 18 50 14 48 10" stroke="#B08968" stroke-width="2.5" stroke-linecap="round"/>
+										<path d="M60 24C58 20 62 16 60 12" stroke="#B08968" stroke-width="2.5" stroke-linecap="round"/>
+										<path d="M64 46C70 42 76 47 72 54C68 59 60 56 64 46Z" fill="#529447" stroke="#6B3A1E" stroke-width="2"/>
+									</svg>
+									{% else %}
+									<svg viewBox="0 0 96 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<ellipse cx="48" cy="52" rx="30" ry="10" fill="#E9ECEF" stroke="#6B3A1E" stroke-width="2.5"/>
+										<path d="M24 44C24 55 34 62 48 62C62 62 72 55 72 44H24Z" fill="#DCE3E8" stroke="#6B3A1E" stroke-width="2.5"/>
+										<ellipse cx="40" cy="40" rx="11" ry="9" fill="#FFFDF7" stroke="#6B3A1E" stroke-width="2.5"/>
+										<circle cx="40" cy="40" r="5" fill="#F59E0B"/>
+										<ellipse cx="57" cy="42" rx="11" ry="9" fill="#FFFDF7" stroke="#6B3A1E" stroke-width="2.5"/>
+										<circle cx="57" cy="42" r="5" fill="#F59E0B"/>
+										<path d="M36 28C42 22 52 22 58 28" stroke="#4D903E" stroke-width="3" stroke-linecap="round"/>
+										<path d="M48 12L50 17L55 19L50 21L48 26L46 21L41 19L46 17L48 12Z" fill="#E6B450"/>
+									</svg>
+									{% endif %}
+								</div>
+							</div>
+							<div class="step-caption">
+								<span class="step-number-inline">{{ step.number }}.</span>
+								<span>{{ step.text }}</span>
+							</div>
+						</div>
+						{% endfor %}
+					</div>
+					{% else %}
+					<div class="cooking-steps">{{ recipe.cong_thuc|linebreaks }}</div>
+					{% endif %}
+				</section>
+			</div>
+		</article>
+		{% else %}
+		<div class="container empty-recipe-box">
+			<p>Hiện chưa có món ăn nào trong cơ sở dữ liệu.</p>
+			<a href="{% url 'recommendations' %}">Quay lại trang gợi ý món ăn</a>
+		</div>
+		{% endif %}
+	</main>
+
+	<footer>
+		<div class="container">© 2026 FoodGenie · Dự án Xây dựng Hệ thống Gợi ý Món ăn <span>●　●　☎　✉</span></div>
+	</footer>
+</body>
+</html>

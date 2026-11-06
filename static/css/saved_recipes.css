@@ -1,0 +1,243 @@
+.favorites-page {
+	min-height: calc(100vh - 64px);
+	padding-top: 40px;
+	padding-bottom: 52px;
+}
+
+.favorites-heading {
+	margin-bottom: 28px;
+	text-align: center;
+}
+
+.favorites-heading .eyebrow {
+	color: #9c4d1e;
+	font-size: 11px;
+	font-weight: 800;
+	letter-spacing: 0.13em;
+}
+
+.favorites-heading h1 {
+	margin: 6px 0 8px;
+	font-family: 'Playfair Display', Georgia, serif;
+	font-size: 38px;
+	font-weight: 800;
+	line-height: 1.15;
+	color: #3b2010;
+}
+
+.favorites-heading p {
+	margin: 0;
+	color: #6e5746;
+}
+
+.favorites-grid {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 20px;
+}
+
+.favorite-card {
+	overflow: hidden;
+	background: #ffffff;
+	border: 1px solid #eadbc6;
+	border-radius: 16px;
+	box-shadow: 0 10px 24px rgba(59, 32, 16, 0.07);
+	transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.favorite-card:hover {
+	transform: translateY(-3px);
+	box-shadow: 0 14px 30px rgba(59, 32, 16, 0.12);
+}
+
+.favorite-image,
+.history-card-image {
+	display: block;
+	overflow: hidden;
+	background: #f5ebe0;
+}
+
+.favorite-image {
+	height: 205px;
+}
+
+.favorite-image img,
+.history-card-image img {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.favorite-content {
+	padding: 16px 18px 18px;
+	background: #fffdf9;
+}
+
+.favorite-content h2,
+.history-card-content h2 {
+	margin: 0 0 8px;
+	font-family: 'Playfair Display', Georgia, serif;
+	font-size: 22px;
+	font-weight: 700;
+	line-height: 1.2;
+	color: #3b2010;
+}
+
+.favorite-content p,
+.history-card-content p {
+	margin: 5px 0;
+	color: #6e5746;
+	font-size: 12.5px;
+}
+
+.favorite-content p i,
+.history-card-content p i {
+	width: 18px;
+	color: #9c4d1e;
+}
+
+.favorite-content .saved-date {
+	color: #8c7360;
+	font-size: 11.5px;
+}
+
+.favorite-content form,
+.history-card-content form {
+	margin-top: 10px;
+}
+
+.favorite-content button,
+.history-card-content button {
+	padding: 0;
+	border: 0;
+	background: transparent;
+	color: #a83228;
+	font: inherit;
+	font-size: 12.5px;
+	font-weight: 600;
+	cursor: pointer;
+}
+
+.empty-state {
+	max-width: 520px;
+	margin: 48px auto;
+	padding: 38px 26px;
+	border: 1px solid #eadbc6;
+	border-radius: 18px;
+	background: #fffdf9;
+	box-shadow: 0 10px 26px rgba(59, 32, 16, 0.06);
+	text-align: center;
+}
+
+.empty-state > i {
+	color: #9c4d1e;
+	font-size: 42px;
+}
+
+.empty-state h2 {
+	margin: 12px 0 6px;
+	font-family: 'Playfair Display', Georgia, serif;
+	font-size: 26px;
+	font-weight: 700;
+	color: #3b2010;
+}
+
+.empty-state p {
+	color: #6e5746;
+	font-size: 14px;
+}
+
+.empty-state a {
+	display: inline-block;
+	margin-top: 12px;
+	padding: 11px 18px;
+	border-radius: 10px;
+	background: linear-gradient(90deg, #8b471f 0%, #a35222 100%);
+	color: #fff;
+	font-size: 13px;
+	font-weight: 700;
+}
+
+.history-card {
+	grid-template-columns: 135px minmax(0, 1fr);
+}
+
+.history-card-image {
+	width: 135px;
+	height: 125px;
+	border-radius: 10px;
+}
+
+.history-card-content {
+	min-width: 0;
+}
+
+.history-card-content h2 a:hover,
+.favorite-content h2 a:hover {
+	color: #9c4d1e;
+}
+
+.recipe-account-actions {
+	display: flex;
+	justify-content: flex-end;
+	margin: 16px 0;
+}
+
+.favorite-button {
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 16px;
+	border: 1.5px solid #9c4d1e;
+	border-radius: 999px;
+	background: #fffdf9;
+	color: #9c4d1e;
+	font: inherit;
+	font-size: 13px;
+	font-weight: 700;
+	cursor: pointer;
+}
+
+.favorite-button.is-favorite,
+.favorite-button:hover {
+	background: #9c4d1e;
+	color: #fff;
+}
+
+.no-image {
+	width: 100%;
+	height: 100%;
+	display: grid;
+	place-items: center;
+	color: #9c7a60;
+	font-size: 38px;
+}
+
+@media (max-width: 900px) {
+	.favorites-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+}
+
+@media (max-width: 560px) {
+	.favorites-page {
+		padding-top: 28px;
+	}
+
+	.favorites-grid {
+		grid-template-columns: 1fr;
+	}
+
+	.history-card {
+		grid-template-columns: 110px minmax(0, 1fr);
+	}
+
+	.history-card-image {
+		width: 110px;
+		height: 125px;
+	}
+
+	.recipe-account-actions {
+		justify-content: flex-start;
+	}
+}

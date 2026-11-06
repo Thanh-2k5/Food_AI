@@ -1,0 +1,100 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title }} | FoodGenie</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar-inner">
+            <a class="brand" href="/">
+                <span class="brand-mark" aria-hidden="true"><i class="bi bi-egg-fried"></i></span>
+                <span>FoodGenie</span>
+            </a>
+            <nav class="nav" aria-label="Điều hướng chính">
+                <a href="/">Trang chủ</a>
+                <a href="/detect/">Nhận diện nguyên liệu</a>
+                <a href="/recommendations/">Gợi ý món ăn</a>
+                <a href="/favorites/">Yêu thích</a>
+                <a href="/history/">Lịch sử</a>
+            </nav>
+            <div class="account-links">
+                <a href="{% url 'login' %}"{% if not is_registration %} class="active"{% endif %}>Đăng nhập</a>
+                <a href="{% url 'register' %}"{% if is_registration %} class="active"{% endif %}>Đăng ký</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="auth-page{% if is_registration %} registration-page{% endif %}">
+        <div class="auth-heading">
+            <h1>{% if is_registration %}Đăng ký tài khoản FoodGenie!{% else %}Chào mừng bạn quay trở lại!{% endif %}</h1>
+            <p>{% if is_registration %}Khám phá thế giới ẩm thực và công thức nấu ăn dễ dàng hơn bao giờ hết!{% else %}Đăng nhập để tiếp tục khám phá những món ăn phù hợp với bạn.{% endif %}</p>
+        </div>
+
+        <div class="auth-layout{% if not is_registration %} login-layout{% endif %}">
+            {% if is_registration %}
+            <img class="food-image food-image-left" src="{% get_media_prefix %}mon_an/ga_sot_ca_chua.jpg" alt="Món gà sốt cà chua">
+            {% endif %}
+
+            <section class="auth-card" aria-labelledby="auth-title">
+                <h2 class="visually-hidden" id="auth-title">{{ page_title }}</h2>
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
+                    {% if form.non_field_errors %}
+                    <div class="form-errors" role="alert">
+                        {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+                    </div>
+                    {% endif %}
+                    <div class="form-fields{% if is_registration %} registration-fields{% endif %}">
+                        {% for field in form %}
+                        <div class="form-field form-field--{{ field.name }}{% if field.errors %} has-errors{% endif %}">
+                            <label class="visually-hidden" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            <span class="field-icon" aria-hidden="true">
+                                {% if field.name == "username" %}<i class="bi bi-person"></i>
+                                {% elif field.name == "password1" or field.name == "password2" or field.name == "password" %}<i class="bi bi-lock"></i>
+                                {% elif field.name == "food_preference" %}<i class="bi bi-heart-pulse"></i>
+                                {% else %}<i class="bi bi-person-badge"></i>{% endif %}
+                            </span>
+                            {{ field }}
+                            {% if field.errors %}
+                            <ul class="field-errors" role="alert">
+                                {% for error in field.errors %}<li>{{ error }}</li>{% endfor %}
+                            </ul>
+                            {% endif %}
+                            {% if field.help_text %}<span class="field-help">{{ field.help_text }}</span>{% endif %}
+                            {% if field.name == "first_name" %}<span class="optional-note">Tên hiển thị (không bắt buộc)</span>{% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button class="submit-button" type="submit">
+                        <i class="bi bi-camera" aria-hidden="true"></i>
+                        {{ submit_label }}
+                    </button>
+                </form>
+                <a class="auth-switch-link" href="{% url other_url %}">{% if is_registration %}Bạn đã có tài khoản?{% else %}Chưa có tài khoản?{% endif %} <strong>{{ other_label }}</strong></a>
+            </section>
+
+            {% if is_registration %}
+            <img class="food-image food-image-right" src="{% get_media_prefix %}mon_an/salad_rau_cu_tuoi.jpg" alt="Đĩa rau củ tươi ngon">
+            {% endif %}
+        </div>
+
+        {% if is_registration %}
+        <section class="features" aria-label="Khám phá FoodGenie">
+            <div><i class="bi bi-camera"></i><span>Nhận diện nguyên liệu</span></div>
+            <div><i class="bi bi-search"></i><span>Tìm món ăn phù hợp</span></div>
+            <div><i class="bi bi-graph-up-arrow"></i><span>Gợi ý thông minh</span></div>
+            <div><i class="bi bi-egg-fried"></i><span>Khám phá ẩm thực</span></div>
+        </section>
+        {% endif %}
+    </main>
+</body>
+</html>

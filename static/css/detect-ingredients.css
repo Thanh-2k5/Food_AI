@@ -1,0 +1,163 @@
+.visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+	border: 0;
+}
+
+.add-ingredient-form {
+	display: flex;
+	gap: 8px;
+}
+
+.upload-row {
+	width: min(820px, 100%);
+	justify-content: center;
+	margin-right: auto;
+	margin-left: auto;
+}
+
+.add-ingredient-form input,
+.ingredient-name-input {
+	min-width: 0;
+	padding: 10px 14px;
+	color: #2c1d13;
+	background: #ffffff;
+	border: 1px solid #d8bfa6;
+	border-radius: 10px;
+	font: inherit;
+	font-size: 13.5px;
+}
+
+.add-ingredient-form input {
+	width: 240px;
+}
+
+.add-ingredient-form input:focus,
+.ingredient-name-input:focus {
+	outline: 2px solid #9c4d1e;
+	outline-offset: 1px;
+}
+
+.add-ingredient-form button {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 10px 16px;
+	color: #fff;
+	background: #8b471f;
+	border: 0;
+	border-radius: 10px;
+	font-size: 13px;
+	font-weight: 700;
+}
+
+.add-ingredient-form button:hover {
+	background: #743916;
+}
+
+.ingredient-feedback {
+	min-height: 18px;
+	margin: -4px 0 8px;
+	color: #8b471f;
+	font-size: 13px;
+	font-weight: 600;
+}
+
+.ingredients article {
+	gap: 10px;
+	min-width: 0;
+}
+
+.ingredient-details {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex: 1;
+	min-width: 0;
+}
+
+.ingredient-name {
+	min-width: 0;
+	overflow-wrap: anywhere;
+}
+
+.ingredient-actions {
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}
+
+.ingredient-action {
+	width: 32px;
+	height: 32px;
+	display: grid;
+	place-items: center;
+	flex: 0 0 auto;
+	color: #8b471f;
+	background: #faefe0;
+	border: 1px solid #eadbc6;
+	border-radius: 8px;
+}
+
+.ingredient-action:hover {
+	color: #fff;
+	background: #8b471f;
+}
+
+.delete-ingredient {
+	color: #a83228;
+}
+
+.delete-ingredient:hover {
+	background: #a83228;
+}
+
+.ingredient-name-input {
+	width: 100%;
+}
+
+.ingredient-empty {
+	grid-column: 1 / -1;
+	margin: 0;
+	padding: 22px;
+	color: #6e5746;
+	background: #fffdf9;
+	border: 1.5px dashed #d8bfa6;
+	border-radius: 12px;
+	font-size: 14px;
+	text-align: center;
+}
+
+.recommendation-action {
+	display: flex;
+	justify-content: center;
+	margin: 28px 0 10px;
+}
+
+.recommendation-action button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-width: 240px;
+	padding: 13px 26px;
+	font-size: 15px;
+	cursor: pointer;
+}
+
+@media (max-width: 800px) {
+	.add-ingredient-form {
+		width: 100%;
+	}
+
+	.add-ingredient-form input {
+		flex: 1;
+		width: auto;
+	}
+}

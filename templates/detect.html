@@ -1,0 +1,71 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ReciScan | Nhận diện nguyên liệu</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Be+Vietnam+Pro:wght@400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="{% static 'css/detect.css' %}">
+	<link rel="stylesheet" href="{% static 'css/detect-ingredients.css' %}">
+</head>
+<body>
+	<header class="topbar">
+		<div class="container topbar-inner">
+			<a href="/" class="brand"><span class="brand-mark"><i class="bi bi-egg-fried"></i></span><strong>FoodGenie</strong></a>
+			<nav class="nav" aria-label="Điều hướng chính"><a href="/">Trang chủ</a><a class="active" href="/detect/">Nhận diện nguyên liệu</a><a href="/recommendations/">Gợi ý món ăn</a><a href="/favorites/">Yêu thích</a><a href="/history/">Lịch sử</a></nav>
+			<div class="actions">{% include 'account_actions.html' %}</div>
+		</div>
+	</header>
+
+	<main class="page">
+		<section class="container content">
+			<div class="heading"><span class="eyebrow"><i class="bi bi-stars"></i> RECI SCAN AI</span><h1>Trang nhận diện nguyên liệu</h1><p>{% if detections %}Hệ thống đã phân tích ảnh và nhận diện các nguyên liệu bên dưới.{% else %}Tải ảnh lên để hệ thống phân tích các nguyên liệu.{% endif %}</p></div>
+			{% if error %}<p class="status" role="alert">{{ error }}</p>{% endif %}
+			<div class="preview">
+				<div class="photo">
+					<img id="preview-image" src="{% if image_url %}{{ image_url }}{% else %}{% get_media_prefix %}mon_an/salad_rau_cu_tuoi.jpg{% endif %}" alt="{% if image_url %}Ảnh đã nhận diện{% else %}Các nguyên liệu tươi trên bàn bếp{% endif %}">
+				</div>
+				{% if detections %}<p class="status"><i class="bi bi-check2-circle"></i> Đã phân tích {{ detections|length }} nguyên liệu</p>{% endif %}
+			</div>
+			<form class="upload-row" method="post" enctype="multipart/form-data">{% csrf_token %}<label class="upload" for="upload"><i class="bi bi-cloud-arrow-up"></i> Chọn ảnh</label><input class="visually-hidden" id="upload" name="image" type="file" accept="image/png,image/jpeg" required><button class="upload" type="submit">Nhận diện</button></form>
+
+			<div class="list-heading" id="ingredients">
+				<div><span class="eyebrow">KẾT QUẢ PHÂN TÍCH</span><h2>Danh sách nguyên liệu được nhận diện</h2></div>
+				<form class="add-ingredient-form" id="add-ingredient-form">
+					<label class="visually-hidden" for="new-ingredient">Tên nguyên liệu</label>
+					<input id="new-ingredient" name="ingredient" type="text" maxlength="80" placeholder="Nhập tên nguyên liệu" required>
+					<button type="submit"><i class="bi bi-plus-lg" aria-hidden="true"></i> Thêm</button>
+				</form>
+			</div>
+			<p class="ingredient-feedback" id="ingredient-feedback" aria-live="polite"></p>
+			<div class="ingredients" id="ingredient-list">
+				{% for detection in detections %}
+				<article class="ingredient-card">
+					<span class="thumb" aria-hidden="true"></span>
+					<div class="ingredient-details">
+						<span class="ingredient-name">{{ detection.name }}</span>
+					</div>
+					<div class="ingredient-actions">
+						<button type="button" class="ingredient-action edit-ingredient" data-action="edit" aria-label="Sửa {{ detection.name }}" title="Sửa nguyên liệu"><i class="bi bi-pencil" aria-hidden="true"></i></button>
+						<button type="button" class="ingredient-action delete-ingredient" data-action="delete" aria-label="Xóa {{ detection.name }}" title="Xóa nguyên liệu"><i class="bi bi-trash3" aria-hidden="true"></i></button>
+					</div>
+				</article>
+				{% endfor %}
+				<p class="ingredient-empty" {% if detections %}hidden{% endif %}>Chưa có nguyên liệu. Hãy thêm nguyên liệu hoặc tải ảnh để nhận diện.</p>
+			</div>
+			{% if can_recommend %}
+			<form class="recommendation-action" method="post" action="{% url 'recommendations' %}">
+				{% csrf_token %}
+				<button class="upload" type="submit"><i class="bi bi-stars" aria-hidden="true"></i> Gợi ý món ăn</button>
+			</form>
+			{% endif %}
+		</section>
+	</main>
+	<footer><div class="container footer-inner"><span>© 2023 ReciScan · Dự án Xây dựng Hệ thống Gợi ý Món ăn</span><span class="social"><i class="bi bi-facebook"></i><i class="bi bi-instagram"></i><i class="bi bi-telephone-fill"></i><i class="bi bi-envelope-fill"></i></span></div></footer>
+	<script src="{% static 'js/detect.js' %}" defer></script>
+</body>
+</html>
