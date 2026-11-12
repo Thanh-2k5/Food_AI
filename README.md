@@ -26,12 +26,12 @@
 
 ## 🛠️ Công nghệ sử dụng
 
-- **Backend**: Python 3.11+, Django 5.x / 6.x
+- **Backend**: Python 3.11+, Django 
 - **AI & API**:
   - **xKiro API** (Vision LLMs như `qwen/qwen3.7-flash:free`, `qwen/qwen3.8-omni-flash:free`, v.v.) và **Groq Vision** (dự phòng) cho bài toán nhận diện & khoanh vùng nguyên liệu.
   - **Groq API** (`llama-3.3-70b-versatile`, `llama-3.1-8b-instant`) cho bài toán sáng tạo công thức nấu ăn.
 - **Xử lý ảnh**: Pillow (PIL)
-- **Cơ sở dữ liệu**: SQLite (mặc định khi triển khai nhanh / kiểm thử) hoặc MySQL (`food_AI`)
+- **Cơ sở dữ liệu**: MySQL (`food_AI`)
 - **Frontend**: HTML5, CSS3, Vanilla JavaScript, Bootstrap Icons, Google Fonts
 - **Triển khai (Deployment)**: Gunicorn, Render (`render.yaml`, `build.sh`), PythonAnywhere
 
@@ -130,13 +130,6 @@ python manage.py test
 
 ## ☁️ Triển khai lên Render
 
-Dự án đã được cấu hình sẵn với [`render.yaml`](file:///d:/Code_Developer/food_recommendation/render.yaml) và [`build.sh`](file:///d:/Code_Developer/food_recommendation/build.sh):
+Dự án đã được cấu hình sẵn với đường link: https://food-ai-1-m7k6.onrender.com/login/
 
-1. Đẩy mã nguồn lên GitHub.
-2. Trên **Render Dashboard**, chọn **New +** → **Web Service** (hoặc **Blueprint**) và kết nối tới repository GitHub.
-3. Trong mục **Environment Variables** trên Render, thiết lập:
-   - `USE_SQLITE` = `1`
-   - `XKIRO_API_KEY` = `<API key từ xKiro>`
-   - `GROQ_API_KEY` = `<API key từ Groq>`
-4. Nhấn **Deploy** và sử dụng đường dẫn `.onrender.com` trên cả máy tính lẫn điện thoại.
 
