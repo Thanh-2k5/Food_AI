@@ -62,14 +62,6 @@ media/mon_an/*
 !media/mon_an/*.webp
 
 # =========================
-# AI / ML Weights
-# =========================
-# Bỏ dấu # nếu không muốn tải model lên GitHub
-# *.pt
-# *.onnx
-# *.pth
-
-# =========================
 # Testing & Coverage
 # =========================
 .pytest_cache/

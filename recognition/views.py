@@ -23,146 +23,26 @@ from .models import DetectedIngredient, RecognitionSession
 
 XKIRO_API_URL = 'https://api.xkiro.com/v1/chat/completions'
 XKIRO_MODELS_URL = 'https://api.xkiro.com/v1/models'
-DEFAULT_XKIRO_MODEL = 'qwen/qwen3-vl-plus:free'
+GROQ_VISION_API_URL = 'https://api.groq.com/openai/v1/chat/completions'
+GROQ_VISION_MODELS = (
+    'meta-llama/llama-4-scout-17b-16e-instruct',
+    'meta-llama/llama-4-maverick-17b-128e-instruct',
+)
+DEFAULT_XKIRO_MODEL = 'qwen/qwen3.7-flash:free'
 FALLBACK_XKIRO_VISION_MODELS = (
-    'qwen/qwen3-vl-plus:free',
-    'qwen/qwen3-vl-plus',
+    'qwen/qwen3.7-flash:free',
+    'qwen/qwen3.8-omni-flash:free',
+    'qwen/qwen3.5-flash:free',
     'qwen/qwen3.6-plus:free',
     'qwen/qwen3.7-plus:free',
+    'qwen/qwen3.5-plus:free',
+    'deepseek/deepseek-v4.1-flash:free',
+    'qwen/qwen3-vl-plus:free',
 )
 GROQ_API_URL = XKIRO_API_URL
 DEFAULT_GROQ_MODEL = DEFAULT_XKIRO_MODEL
 COORDINATE_SCALE = 1000
 MIN_DETECTION_CONFIDENCE = 0.55
-VIETNAMESE_LABELS = {
-    'Akabare Khursani': 'Ớt Akabare',
-    'Apple': 'Táo',
-    'Artichoke': 'Atiso',
-    'Ash Gourd -Kubhindo-': 'Bầu bí',
-    'Asparagus -Kurilo-': 'Măng tây',
-    'Avocado': 'Bơ',
-    'Bacon': 'Thịt xông khói',
-    'Bamboo Shoots -Tama-': 'Măng tre',
-    'Banana': 'Chuối',
-    'Beans': 'Đậu',
-    'Beaten Rice -Chiura-': 'Cơm tẻ xay',
-    'Beef': 'Thịt bò',
-    'Beetroot': 'Củ dền',
-    'Bethu ko Saag': 'Rau Bethu',
-    'Bitter Gourd': 'Mướp đắng',
-    'Black Lentils': 'Đậu lăng đen',
-    'Black beans': 'Đậu đen',
-    'Bottle Gourd -Lauka-': 'Bầu nước',
-    'Bread': 'Bánh mì',
-    'Brinjal': 'Cà tím',
-    'Broad Beans -Bakullo-': 'Đậu rộng',
-    'Broccoli': 'Bông cải xanh',
-    'Buff Meat': 'Thịt trâu',
-    'Butter': 'Bơ',
-    'Cabbage': 'Bắp cải',
-    'Capsicum': 'Ớt chuông',
-    'Carrot': 'Cà rốt',
-    'Cassava -Ghar Tarul-': 'Sắn',
-    'Cauliflower': 'Bông cải trắng',
-    'Chayote-iskus-': 'Su su',
-    'Cheese': 'Phô mai',
-    'Chicken': 'Thịt gà',
-    'Chicken Gizzards': 'Mật gà',
-    'Chickpeas': 'Đậu gà',
-    'Chili Pepper -Khursani-': 'Ớt chili',
-    'Chili Powder': 'Bột ớt',
-    'Chowmein Noodles': 'Mì Chowmein',
-    'Cinnamon': 'Quế',
-    'Coriander -Dhaniya-': 'Rau mùi',
-    'Corn': 'Ngô',
-    'Cornflakec': 'Ngũ cốc ngô',
-    'Crab Meat': 'Thịt cua',
-    'Cucumber': 'Dưa chuột',
-    'Egg': 'Trứng',
-    'Farsi ko Munta': 'Mướp Farsi',
-    'Fiddlehead Ferns -Niguro-': 'Rau dương xỉ',
-    'Fish': 'Cá',
-    'Garden Peas': 'Đậu Hà Lan',
-    'Garden cress-Chamsur ko saag-': 'Rau mùi tự nhiên',
-    'Garlic': 'Tỏi',
-    'Ginger': 'Gừng',
-    'Green Brinjal': 'Cà tím xanh',
-    'Green Lentils': 'Đậu lăng xanh',
-    'Green Mint -Pudina-': 'Bạc hà xanh',
-    'Green Peas': 'Đậu xanh',
-    'Green Soyabean -Hariyo Bhatmas-': 'Đậu nành xanh',
-    'Gundruk': 'Rau Gundruk',
-    'Ham': 'Thịt nguội',
-    'Ice': 'Đá',
-    'Jack Fruit': 'Mít',
-    'Ketchup': 'Sốt cà chua',
-    'Lapsi -Nepali Hog Plum-': 'Lapsi',
-    'Lemon -Nimbu-': 'Chanh',
-    'Lime -Kagati-': 'Chanh ta',
-    'Long Beans -Bodi-': 'Đậu đũa',
-    'Masyaura': 'Masyaura',
-    'Milk': 'Sữa',
-    'Minced Meat': 'Thịt băm',
-    'Moringa Leaves -Sajyun ko Munta-': 'Lá chùm ngây',
-    'Mushroom': 'Nấm',
-    'Mutton': 'Thịt cừu',
-    'Nutrela -Soya Chunks-': 'Đậu nành khô',
-    'Okra -Bhindi-': 'Đậu bắp',
-    'Olive Oil': 'Dầu ô liu',
-    'Onion': 'Hành tây',
-    'Onion Leaves': 'Lá hành',
-    'Orange': 'Cam',
-    'Palak -Indian Spinach-': 'Bạc hà Ấn Độ',
-    'Palungo -Nepali Spinach-': 'Rau chân vịt',
-    'Paneer': 'Phô mai tươi',
-    'Papaya': 'Đu đủ',
-    'Pea': 'Đậu Hà Lan',
-    'Pear': 'Lê',
-    'Pointed Gourd -Chuche Karela-': 'Mướp khía',
-    'Pork': 'Thịt lợn',
-    'Potato': 'Khoai tây',
-    'Pumpkin -Farsi-': 'Bí đỏ',
-    'Radish': 'Củ cải',
-    'Rahar ko Daal': 'Đậu lăng đỏ',
-    'Rayo ko Saag': 'Rau cải ngựa',
-    'Red Beans': 'Đậu đỏ',
-    'Red Lentils': 'Đậu lăng đỏ',
-    'Rice -Chamal-': 'Gạo',
-    'Sajjyun -Moringa Drumsticks-': 'Măng chùm ngây',
-    'Salt': 'Muối',
-    'Sausage': 'Xúc xích',
-    'Snake Gourd -Chichindo-': 'Mướp rắn',
-    'Soy Sauce': 'Nước tương',
-    'Soyabean -Bhatmas-': 'Đậu nành',
-    'Sponge Gourd -Ghiraula-': 'Mướp xương',
-    'Stinging Nettle -Sisnu-': 'Cây gai',
-    'Strawberry': 'Dâu tây',
-    'Sugar': 'Đường',
-    'Sweet Potato -Suthuni-': 'Khoai lang',
-    'Taro Leaves -Karkalo-': 'Lá khoai môn',
-    'Taro Root-Pidalu-': 'Củ khoai môn',
-    'Thukpa Noodles': 'Mì Thukpa',
-    'Tofu': 'Đậu phụ',
-    'Tomato': 'Cà chua',
-    'Tori ko Saag': 'Rau Tori',
-    'Tree Tomato -Rukh Tamatar-': 'Cà chua cây',
-    'Turnip': 'Củ cải trắng',
-    'Wallnut': 'Hạt óc chó',
-    'Water Melon': 'Dưa hấu',
-    'Wheat': 'Lúa mì',
-    'Yellow Lentils': 'Đậu lăng vàng',
-    'kimchi': 'Kimchi',
-    'mayonnaise': 'Mayonnaise',
-    'noodle': 'Mì',
-    'seaweed': 'Rong biển',
-    'onions': 'Hành tây',
-    'tomatoes': 'Cà chua',
-    'carrots': 'Cà rốt',
-    'potatoes': 'Khoai tây',
-    'cucumbers': 'Dưa chuột',
-    'bell pepper': 'Ớt chuông',
-    'bell peppers': 'Ớt chuông',
-}
 
 
 def _label_name(name):
@@ -171,9 +51,7 @@ def _label_name(name):
     raw_name = str(name).strip()
     if not raw_name:
         return 'Unknown'
-    normalized = ' '.join(raw_name.replace('_', ' ').split())
-    labels_by_key = {key.casefold(): value for key, value in VIETNAMESE_LABELS.items()}
-    return labels_by_key.get(raw_name.casefold(), labels_by_key.get(normalized.casefold(), normalized))
+    return ' '.join(raw_name.replace('_', ' ').split())
 
 
 def _label_font(size):
@@ -268,6 +146,68 @@ def _find_label_bounds(
     return fallback
 
 
+def _is_free_xkiro_model(item):
+    if not isinstance(item, dict):
+        return False
+    model_id = item.get('id')
+    if not isinstance(model_id, str) or not model_id.strip():
+        return False
+    if model_id.strip().lower().endswith(':free'):
+        return True
+    if item.get('free') is True or item.get('is_free') is True:
+        return True
+    pricing = item.get('pricing')
+    if isinstance(pricing, dict):
+        try:
+            inp = float(pricing.get('input', 1))
+            out = float(pricing.get('output', 1))
+            if inp == 0 and out == 0:
+                return True
+        except (TypeError, ValueError):
+            pass
+    return False
+
+
+def _is_vision_xkiro_model(item):
+    if not isinstance(item, dict):
+        return False
+    capabilities = item.get('capabilities')
+    if isinstance(capabilities, dict) and capabilities.get('vision') is True:
+        return True
+    architecture = item.get('architecture')
+    if isinstance(architecture, dict):
+        modality = str(
+            architecture.get('modality', '')
+            or architecture.get('input_modalities', '')
+        ).lower()
+        if 'image' in modality or 'vision' in modality or 'multimodal' in modality:
+            return True
+    modality = str(
+        item.get('modality', '') or item.get('input_modalities', '')
+    ).lower()
+    if 'image' in modality or 'vision' in modality or 'multimodal' in modality:
+        return True
+    model_id = str(item.get('id', '')).lower()
+    vision_keywords = (
+        'vl',
+        'vision',
+        'omni',
+        'qwen3.5',
+        'qwen3.6',
+        'qwen3.7',
+        'qwen3.8',
+        'deepseek-v4',
+        'pixtral',
+        'gemma-3',
+        'llama-4',
+        'gemini',
+        'gpt-4o',
+        'glm-4v',
+        'internvl',
+    )
+    return any(keyword in model_id for keyword in vision_keywords)
+
+
 def _discover_xkiro_vision_models(api_key):
     request = Request(
         XKIRO_MODELS_URL,
@@ -287,35 +227,69 @@ def _discover_xkiro_vision_models(api_key):
     if not isinstance(items, list):
         return []
 
-    model_ids = [
-        item.get('id')
-        for item in items
-        if isinstance(item, dict) and isinstance(item.get('id'), str)
-    ]
-    preferred_keywords = ('vl', 'vision', 'qwen3.6', 'qwen3.7', 'gemini', 'gpt-4o')
+    excluded = ('whisper', 'tts', 'guard', 'embed', 'moderation', 'rerank', 'audio')
+    preferred_families = ('qwen', 'deepseek', 'gemini', 'gpt', 'claude', 'mistral', 'cohere', 'llama')
+    free_vision_models = []
+    free_other_models = []
+
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        model_id = item.get('id')
+        if not isinstance(model_id, str) or not model_id.strip():
+            continue
+        model_id = model_id.strip()
+        lower_id = model_id.lower()
+        if any(skip in lower_id for skip in excluded):
+            continue
+        if not _is_free_xkiro_model(item):
+            continue
+        if _is_vision_xkiro_model(item):
+            free_vision_models.append(model_id)
+        else:
+            free_other_models.append(model_id)
+
     discovered = []
-    for keyword in preferred_keywords:
-        for model_id in model_ids:
-            if keyword in model_id.lower() and model_id not in discovered:
+    for family in preferred_families:
+        for model_id in free_vision_models:
+            if family in model_id.lower() and model_id not in discovered:
+                discovered.append(model_id)
+    for model_id in free_vision_models:
+        if model_id not in discovered:
+            discovered.append(model_id)
+    for family in ('qwen', 'deepseek', 'gemini'):
+        for model_id in free_other_models:
+            if family in model_id.lower() and model_id not in discovered:
                 discovered.append(model_id)
     return discovered
 
 
 def _candidate_xkiro_models():
-    configured_xkiro = getattr(settings, 'XKIRO_MODEL', '')
-    configured_groq = getattr(settings, 'GROQ_MODEL', '')
+    configured_xkiro = (getattr(settings, 'XKIRO_MODEL', '') or '').strip()
+    configured_groq = (getattr(settings, 'GROQ_MODEL', '') or '').strip()
     groq_defaults = {
         'meta-llama/llama-4-scout-17b-16e-instruct',
         'llama-3.3-70b-versatile',
         'llama-3.1-8b-instant',
         'qwen/qwen3.8-27b',
     }
+    custom_groq = configured_groq if configured_groq not in groq_defaults else ''
+    raw_items = []
+    if custom_groq and configured_xkiro in ('', DEFAULT_XKIRO_MODEL, 'qwen/qwen3-vl-plus:free'):
+        raw_items.append(custom_groq)
+    if configured_xkiro:
+        if (
+            '/' in configured_xkiro
+            and not configured_xkiro.lower().endswith(':free')
+        ):
+            raw_items.append(f'{configured_xkiro}:free')
+        raw_items.append(configured_xkiro)
+    if custom_groq and custom_groq not in raw_items:
+        raw_items.append(custom_groq)
+    raw_items.extend(FALLBACK_XKIRO_VISION_MODELS)
+
     candidates = []
-    for item in (
-        configured_xkiro,
-        configured_groq if configured_groq not in groq_defaults else '',
-        *FALLBACK_XKIRO_VISION_MODELS,
-    ):
+    for item in raw_items:
         if (
             isinstance(item, str)
             and item.strip()
@@ -326,6 +300,82 @@ def _candidate_xkiro_models():
     if not candidates:
         candidates.append(DEFAULT_XKIRO_MODEL)
     return candidates
+
+
+def _parse_ingredients_from_api_response(api_response, provider_name='xKiro API'):
+    try:
+        content = api_response['choices'][0]['message']['content']
+    except (KeyError, IndexError, TypeError) as error:
+        raise ValueError(f'{provider_name} không trả về nội dung nhận diện.') from error
+    if not isinstance(content, str):
+        raise ValueError(f'{provider_name} trả về nội dung nhận diện không hợp lệ.')
+
+    content = re.sub(r'<think>.*?</think>', '', content, flags=re.DOTALL).strip()
+    if content.startswith('```'):
+        content = content.split('\n', 1)[-1]
+        if content.endswith('```'):
+            content = content[:-3].strip()
+
+    try:
+        result = json.loads(content)
+    except json.JSONDecodeError as error:
+        start = content.find('{')
+        end = content.rfind('}')
+        if start != -1 and end > start:
+            try:
+                result = json.loads(content[start:end + 1])
+            except json.JSONDecodeError:
+                raise ValueError(
+                    f'{provider_name} trả về JSON nhận diện không hợp lệ.'
+                ) from error
+        else:
+            raise ValueError(
+                f'{provider_name} trả về JSON nhận diện không hợp lệ.'
+            ) from error
+    ingredients = result.get('ingredients') if isinstance(result, dict) else None
+    if not isinstance(ingredients, list):
+        raise ValueError(f'{provider_name} không trả về danh sách nguyên liệu.')
+    return ingredients
+
+
+def _groq_vision_fallback(prompt, image_url):
+    groq_key = (getattr(settings, 'GROQ_API_KEY', '') or '').strip()
+    if not groq_key.startswith('gsk_'):
+        return None
+    for model in GROQ_VISION_MODELS:
+        payload = {
+            'model': model,
+            'messages': [{
+                'role': 'user',
+                'content': [
+                    {'type': 'text', 'text': prompt},
+                    {'type': 'image_url', 'image_url': {'url': image_url}},
+                ],
+            }],
+            'temperature': 0,
+            'max_completion_tokens': 2048,
+            'response_format': {'type': 'json_object'},
+        }
+        request = Request(
+            GROQ_VISION_API_URL,
+            data=json.dumps(payload).encode('utf-8'),
+            headers={
+                'Authorization': f'Bearer {groq_key}',
+                'Content-Type': 'application/json',
+                'User-Agent': 'food-recommendation/1.0',
+            },
+            method='POST',
+        )
+        try:
+            with urlopen(request, timeout=60) as response:
+                api_response = json.loads(response.read().decode('utf-8'))
+            return _parse_ingredients_from_api_response(
+                api_response,
+                provider_name='Groq API',
+            )
+        except Exception:
+            continue
+    return None
 
 
 def _xkiro_ingredients(image_bytes, image_format):
@@ -375,6 +425,7 @@ def _xkiro_ingredients(image_bytes, image_format):
     models_to_try = _candidate_xkiro_models()
     discovered_checked = False
     api_response = None
+    last_response_text = ''
 
     index = 0
     while index < len(models_to_try):
@@ -409,15 +460,25 @@ def _xkiro_ingredients(image_bytes, image_format):
                 api_response = json.loads(response.read().decode('utf-8'))
             break
         except HTTPError as error:
-            response_text = error.read().decode('utf-8', errors='replace').strip()
-            retryable_codes = (400, 404, 408, 422, 429, 500, 502, 503, 504)
-            if error.code in retryable_codes and not discovered_checked and index == len(models_to_try):
+            raw_text = error.read().decode('utf-8', errors='replace').strip()
+            if raw_text:
+                last_response_text = raw_text
+            response_text = raw_text or last_response_text
+            retryable_codes = (400, 402, 403, 404, 408, 422, 429, 500, 502, 503, 504)
+            if error.code in retryable_codes and not discovered_checked:
                 discovered_checked = True
-                for discovered_model in _discover_xkiro_vision_models(api_key):
+                discovered_models = _discover_xkiro_vision_models(api_key)
+                insert_pos = index
+                for discovered_model in discovered_models:
                     if discovered_model not in models_to_try:
-                        models_to_try.append(discovered_model)
+                        models_to_try.insert(insert_pos, discovered_model)
+                        insert_pos += 1
             if error.code in retryable_codes and index < len(models_to_try):
                 continue
+
+            fallback_ingredients = _groq_vision_fallback(prompt, image_url)
+            if fallback_ingredients is not None:
+                return fallback_ingredients
 
             error_message = response_text
             try:
@@ -457,43 +518,16 @@ def _xkiro_ingredients(image_bytes, image_format):
                 f'xKiro API từ chối yêu cầu ({diagnostics})'
             ) from error
         except (URLError, TimeoutError) as error:
+            fallback_ingredients = _groq_vision_fallback(prompt, image_url)
+            if fallback_ingredients is not None:
+                return fallback_ingredients
             raise ValueError('Không thể kết nối tới xKiro API.') from error
         except json.JSONDecodeError as error:
+            if index < len(models_to_try):
+                continue
             raise ValueError('xKiro API trả về phản hồi không hợp lệ.') from error
 
-    try:
-        content = api_response['choices'][0]['message']['content']
-    except (KeyError, IndexError, TypeError) as error:
-        raise ValueError('xKiro API không trả về nội dung nhận diện.') from error
-    if not isinstance(content, str):
-        raise ValueError('xKiro API trả về nội dung nhận diện không hợp lệ.')
-
-    content = re.sub(r'<think>.*?</think>', '', content, flags=re.DOTALL).strip()
-    if content.startswith('```'):
-        content = content.split('\n', 1)[-1]
-        if content.endswith('```'):
-            content = content[:-3].strip()
-
-    try:
-        result = json.loads(content)
-    except json.JSONDecodeError as error:
-        start = content.find('{')
-        end = content.rfind('}')
-        if start != -1 and end > start:
-            try:
-                result = json.loads(content[start:end + 1])
-            except json.JSONDecodeError:
-                raise ValueError(
-                    'xKiro API trả về JSON nhận diện không hợp lệ.'
-                ) from error
-        else:
-            raise ValueError(
-                'xKiro API trả về JSON nhận diện không hợp lệ.'
-            ) from error
-    ingredients = result.get('ingredients') if isinstance(result, dict) else None
-    if not isinstance(ingredients, list):
-        raise ValueError('xKiro API không trả về danh sách nguyên liệu.')
-    return ingredients
+    return _parse_ingredients_from_api_response(api_response, provider_name='xKiro API')
 
 
 _groq_ingredients = _xkiro_ingredients

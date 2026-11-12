@@ -88,6 +88,10 @@ def recommendations(request):
         if (
             recognition_session.trang_thai == 'thanh_cong'
             and 0 < len(recommendations) < MIN_RECOMMENDATIONS
+            and not any(
+                item.mon_an and item.mon_an.nguon_du_lieu == 'groq'
+                for item in recommendations
+            )
         ):
             try:
                 create_recommendations_for_session(recognition_session)

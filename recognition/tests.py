@@ -2,7 +2,7 @@ import json
 from io import BytesIO
 import tempfile
 from urllib.error import HTTPError
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -451,7 +451,7 @@ class IngredientDetectionTests(TestCase):
     ):
         api_content = json.dumps({
             'ingredients': [{
-                'name': 'Tomato',
+                'name': 'Cà chua',
                 'confidence': 0.91,
                 'box': [250, 250, 750, 750],
             }],
@@ -561,3 +561,77 @@ class IngredientDetectionTests(TestCase):
             r'HTTP 403: Access denied by gateway',
         ):
             views._detect_ingredients(uploaded_file)
+
+    @override_settings(XKIRO_API_KEY='test-key', XKIRO_MODEL='qwen/qwen3-vl-plus:free')
+    @patch('recognition.views.default_storage.url', return_value='/media/result.jpg')
+    @patch('recognition.views.default_storage.save', return_value='result.jpg')
+    @patch('recognition.views.urlopen')
+    def test_detect_retries_with_discovered_free_vision_model_after_403_paid_model(
+        self,
+        mock_urlopen,
+        mock_storage_save,
+        mock_storage_url,
+    ):
+        paid_error = HTTPError(
+            url=views.XKIRO_API_URL,
+            code=403,
+            msg='Forbidden',
+            hdrs=None,
+            fp=BytesIO(
+                b'{"error":{"message":"This is a paid model. The Free plan only allows free models."}}'
+            ),
+        )
+        models_response = BytesIO(
+            json.dumps({
+                'object': 'list',
+                'data': [
+                    {
+                        'id': 'openai/gpt-4o',
+                        'pricing': {'input': 2.5, 'output': 10.0},
+                        'capabilities': {'vision': True},
+                    },
+                    {
+                        'id': 'qwen/qwen3.7-flash:free',
+                        'pricing': {'input': 0.0, 'output': 0.0},
+                        'capabilities': {'vision': True},
+                    },
+                ],
+            }).encode('utf-8')
+        )
+        models_ctx = MagicMock()
+        models_ctx.__enter__.return_value.read.return_value = models_response.getvalue()
+
+        chat_ctx = MagicMock()
+        chat_ctx.__enter__.return_value.read.return_value = json.dumps({
+            'choices': [{
+                'message': {
+                    'content': json.dumps({
+                        'ingredients': [{
+                            'name': 'Cà rốt',
+                            'confidence': 0.94,
+                            'bbox_2d': [100, 100, 600, 600],
+                        }],
+                    }),
+                },
+            }],
+        }).encode('utf-8')
+
+        mock_urlopen.side_effect = [paid_error, models_ctx, chat_ctx]
+
+        image_bytes = BytesIO()
+        Image.new('RGB', (20, 20), 'white').save(image_bytes, format='PNG')
+        uploaded_file = SimpleUploadedFile(
+            'ingredients.png',
+            image_bytes.getvalue(),
+            content_type='image/png',
+        )
+
+        detections, image_url, _ = views._detect_ingredients(uploaded_file)
+
+        self.assertEqual(detections, [{'name': 'Cà rốt', 'confidence': 94}])
+        self.assertEqual(image_url, '/media/result.jpg')
+        second_chat_req = mock_urlopen.call_args_list[2].args[0]
+        self.assertEqual(
+            json.loads(second_chat_req.data)['model'],
+            'qwen/qwen3.7-flash:free',
+        )

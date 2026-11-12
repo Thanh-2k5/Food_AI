@@ -191,7 +191,7 @@ XKIRO_API_URL = os.environ.get(
 XKIRO_API_KEY = os.environ.get('XKIRO_API_KEY', '')
 XKIRO_MODEL = os.environ.get(
     'XKIRO_MODEL',
-    'qwen/qwen3-vl-plus:free',
+    'qwen/qwen3.7-flash:free',
 )
 PEXELS_API_KEY = os.environ.get('PEXELS_API_KEY', '')
 AI_IMAGE_MODEL = os.environ.get('AI_IMAGE_MODEL', 'flux')
