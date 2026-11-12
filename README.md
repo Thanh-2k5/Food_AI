@@ -128,8 +128,8 @@ python manage.py test
 
 ---
 
-## ☁️ Triển khai lên Render
+## ☁️ Triển khai lên Render (public web)
 
-Dự án đã được cấu hình sẵn với đường link: https://food-ai-1-m7k6.onrender.com/login/
+Dự án đã được cấu hình sẵn với đường link public web: https://food-ai-1-m7k6.onrender.com/login/
 
 
