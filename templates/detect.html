@@ -42,7 +42,7 @@
 				</form>
 			</div>
 			<p class="ingredient-feedback" id="ingredient-feedback" aria-live="polite"></p>
-			<div class="ingredients" id="ingredient-list">
+			<div class="ingredients" id="ingredient-list"{% if can_recommend %} data-save-url="{% url 'update_detected_ingredients' %}"{% endif %}>
 				{% for detection in detections %}
 				<article class="ingredient-card">
 					<span class="thumb" aria-hidden="true"></span>
@@ -58,8 +58,10 @@
 				<p class="ingredient-empty" {% if detections %}hidden{% endif %}>Chưa có nguyên liệu. Hãy thêm nguyên liệu hoặc tải ảnh để nhận diện.</p>
 			</div>
 			{% if can_recommend %}
-			<form class="recommendation-action" method="post" action="{% url 'recommendations' %}">
+			<form class="recommendation-action" id="recommendation-form" method="post" action="{% url 'recommendations' %}">
 				{% csrf_token %}
+				<input type="hidden" name="ingredients_submitted" value="1">
+				<div id="recommendation-ingredients" hidden>{% for detection in detections %}<input type="hidden" name="ingredients" value="{{ detection.name }}">{% endfor %}</div>
 				<button class="upload" type="submit"><i class="bi bi-stars" aria-hidden="true"></i> Gợi ý món ăn</button>
 			</form>
 			{% endif %}

@@ -69,6 +69,10 @@
 	font-weight: 600;
 }
 
+.ingredient-feedback.is-error {
+	color: #c62828;
+}
+
 .ingredients article {
 	gap: 10px;
 	min-width: 0;

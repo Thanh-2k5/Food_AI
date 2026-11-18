@@ -27,10 +27,108 @@ document.addEventListener('DOMContentLoaded', function () {
 	const addInput = document.getElementById('new-ingredient');
 	const emptyState = ingredientList && ingredientList.querySelector('.ingredient-empty');
 	const feedback = document.getElementById('ingredient-feedback');
+	const recommendationForm = document.getElementById('recommendation-form');
+	const recommendationInputs = document.getElementById('recommendation-ingredients');
 	if (!ingredientList || !addForm || !addInput || !emptyState) return;
 
-	function showFeedback(message) {
-		if (feedback) feedback.textContent = message;
+	const saveUrl = ingredientList.dataset.saveUrl || '';
+	let saveQueue = Promise.resolve();
+
+	function showFeedback(message, isError) {
+		if (!feedback) return;
+		feedback.textContent = message;
+		feedback.classList.toggle('is-error', Boolean(isError));
+	}
+
+	function getCsrfToken() {
+		const input = document.querySelector('input[name="csrfmiddlewaretoken"]');
+		if (input) return input.value;
+		const match = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
+		return match ? decodeURIComponent(match[1]) : '';
+	}
+
+	function normalizeKey(name) {
+		return name
+			.normalize('NFD')
+			.replace(/[\u0300-\u036f]/g, '')
+			.replace(/đ/gi, 'd')
+			.toLowerCase()
+			.replace(/[^a-z0-9]+/g, ' ')
+			.trim();
+	}
+
+	function getIngredientNames() {
+		const names = [];
+		const seen = new Set();
+		ingredientList.querySelectorAll('.ingredient-card').forEach(function (card) {
+			const label = card.querySelector('.ingredient-name');
+			const input = card.querySelector('.ingredient-name-input');
+			let name = label ? label.textContent : '';
+			if (input) name = input.value.trim() || card.dataset.previousName || '';
+			name = name.replace(/\s+/g, ' ').trim();
+			const key = normalizeKey(name);
+			if (!key || seen.has(key)) return;
+			seen.add(key);
+			names.push(name);
+		});
+		return names;
+	}
+
+	function hasIngredient(name, exceptCard) {
+		const key = normalizeKey(name);
+		return Array.from(ingredientList.querySelectorAll('.ingredient-card')).some(function (card) {
+			if (card === exceptCard) return false;
+			const label = card.querySelector('.ingredient-name');
+			return label && normalizeKey(label.textContent || '') === key;
+		});
+	}
+
+	function syncRecommendationInputs() {
+		if (!recommendationInputs) return;
+		recommendationInputs.replaceChildren();
+		getIngredientNames().forEach(function (name) {
+			const input = document.createElement('input');
+			input.type = 'hidden';
+			input.name = 'ingredients';
+			input.value = name;
+			recommendationInputs.append(input);
+		});
+	}
+
+	function saveIngredients(successMessage) {
+		syncRecommendationInputs();
+		if (!saveUrl) {
+			showFeedback(successMessage);
+			return saveQueue;
+		}
+		const names = getIngredientNames();
+		saveQueue = saveQueue
+			.catch(function () {})
+			.then(function () {
+				return fetch(saveUrl, {
+					method: 'POST',
+					credentials: 'same-origin',
+					headers: {
+						'Content-Type': 'application/json',
+						'X-CSRFToken': getCsrfToken(),
+					},
+					body: JSON.stringify({ ingredients: names }),
+				});
+			})
+			.then(function (response) {
+				return response.json().catch(function () {
+					return { ok: false };
+				}).then(function (data) {
+					if (!response.ok || !data.ok) {
+						throw new Error(data.error || 'Không thể lưu danh sách nguyên liệu.');
+					}
+					showFeedback(`${successMessage} Đã lưu.`);
+				});
+			})
+			.catch(function (error) {
+				showFeedback(error.message || 'Không thể lưu danh sách nguyên liệu.', true);
+			});
+		return saveQueue;
 	}
 
 	function makeIcon(className) {
@@ -96,6 +194,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		editButton.setAttribute('aria-label', `Sửa ${newName}`);
 		editButton.title = 'Sửa nguyên liệu';
 		editButton.replaceChildren(makeIcon('bi bi-pencil'));
+		card.querySelector('.delete-ingredient')?.setAttribute('aria-label', `Xóa ${newName}`);
 		delete card.dataset.previousName;
 	}
 
@@ -130,31 +229,46 @@ document.addEventListener('DOMContentLoaded', function () {
 		const input = card.querySelector('.ingredient-name-input');
 		if (!input) return;
 
-		const name = input.value.trim();
+		const name = input.value.replace(/\s+/g, ' ').trim();
 		if (!name) {
 			input.setCustomValidity('Vui lòng nhập tên nguyên liệu.');
 			input.reportValidity();
 			return;
 		}
+		if (hasIngredient(name, card)) {
+			input.setCustomValidity('Nguyên liệu này đã có trong danh sách.');
+			input.reportValidity();
+			return;
+		}
 
+		const previousName = card.dataset.previousName || '';
 		finishEditing(card, name);
-		showFeedback(`Đã cập nhật nguyên liệu thành "${name}".`);
+		if (name === previousName) {
+			showFeedback('Không có thay đổi.');
+			return;
+		}
+		saveIngredients(`Đã cập nhật nguyên liệu thành "${name}".`);
 	}
 
 	addForm.addEventListener('submit', function (event) {
 		event.preventDefault();
-		const name = addInput.value.trim();
+		const name = addInput.value.replace(/\s+/g, ' ').trim();
 		if (!name) {
 			addInput.setCustomValidity('Vui lòng nhập tên nguyên liệu.');
+			addInput.reportValidity();
+			return;
+		}
+		if (hasIngredient(name)) {
+			addInput.setCustomValidity('Nguyên liệu này đã có trong danh sách.');
 			addInput.reportValidity();
 			return;
 		}
 
 		ingredientList.insertBefore(makeIngredientCard(name), emptyState);
 		addForm.reset();
-		showFeedback(`Đã thêm nguyên liệu "${name}".`);
 		updateEmptyState();
 		addInput.focus();
+		saveIngredients(`Đã thêm nguyên liệu "${name}".`);
 	});
 
 	addInput.addEventListener('input', function () {
@@ -175,10 +289,12 @@ document.addEventListener('DOMContentLoaded', function () {
 		} else if (button.dataset.action === 'cancel') {
 			finishEditing(card, card.dataset.previousName || '');
 		} else if (button.dataset.action === 'delete') {
-			const name = card.querySelector('.ingredient-name')?.textContent || 'nguyên liệu';
+			const name = card.querySelector('.ingredient-name')?.textContent
+				|| card.dataset.previousName
+				|| 'nguyên liệu';
 			card.remove();
-			showFeedback(`Đã xóa nguyên liệu "${name}".`);
 			updateEmptyState();
+			saveIngredients(`Đã xóa nguyên liệu "${name}".`);
 		}
 	});
 
@@ -201,5 +317,25 @@ document.addEventListener('DOMContentLoaded', function () {
 		}
 	});
 
+	if (recommendationForm) {
+		recommendationForm.addEventListener('submit', function (event) {
+			// Commit any ingredient still being edited before sending the list.
+			ingredientList.querySelectorAll('.ingredient-card').forEach(function (card) {
+				const input = card.querySelector('.ingredient-name-input');
+				if (!input) return;
+				const name = input.value.replace(/\s+/g, ' ').trim();
+				finishEditing(card, name && !hasIngredient(name, card) ? name : card.dataset.previousName || name);
+			});
+
+			syncRecommendationInputs();
+			if (getIngredientNames().length === 0) {
+				event.preventDefault();
+				showFeedback('Hãy thêm ít nhất một nguyên liệu trước khi gợi ý món ăn.', true);
+				addInput.focus();
+			}
+		});
+	}
+
 	updateEmptyState();
+	syncRecommendationInputs();
 });

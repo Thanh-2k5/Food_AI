@@ -18,6 +18,7 @@ from .models import (
     FavoriteRecipe,
     RecipeHistory,
     RecognitionSession,
+    Recommendation,
     UserProfile,
 )
 
@@ -276,6 +277,151 @@ class UserRecipePersistenceTests(TestCase):
             self.client.get('/favorites/'),
             '/login/?next=/favorites/',
         )
+
+
+class IngredientEditingTests(TestCase):
+    def setUp(self):
+        self.tomato = Ingredient.objects.create(
+            ten_thuc_pham='Cà chua',
+            ten_chuan_hoa='ca_chua',
+            loai_thuc_pham='Rau củ',
+        )
+        self.egg = Ingredient.objects.create(
+            ten_thuc_pham='Trứng',
+            ten_chuan_hoa='trung',
+            loai_thuc_pham='Trứng',
+        )
+        self.session = RecognitionSession.objects.create(
+            anh_dau_vao=SimpleUploadedFile(
+                'ingredients.jpg',
+                b'image',
+                content_type='image/jpeg',
+            ),
+            trang_thai='thanh_cong',
+        )
+        DetectedIngredient.objects.bulk_create([
+            DetectedIngredient(
+                phien_nhan_dien=self.session,
+                thuc_pham=self.tomato,
+                ten_da_nhan_dien='Cà chua',
+                do_tin_cay='0.9100',
+            ),
+            DetectedIngredient(
+                phien_nhan_dien=self.session,
+                ten_da_nhan_dien='Hành lá',
+                do_tin_cay='0.7600',
+            ),
+        ])
+        session_data = self.client.session
+        session_data['last_recognition_session_id'] = self.session.pk
+        session_data.save()
+
+    def _saved_names(self):
+        return list(
+            DetectedIngredient.objects.filter(phien_nhan_dien=self.session)
+            .order_by('id')
+            .values_list('ten_da_nhan_dien', flat=True)
+        )
+
+    def test_update_endpoint_saves_added_edited_and_deleted_ingredients(self):
+        recipe = Recipe.objects.create(
+            ten_mon='Canh cà chua',
+            thoi_gian_nau=15,
+            cong_thuc='Nấu canh.',
+        )
+        Recommendation.objects.create(phien_nhan_dien=self.session, mon_an=recipe)
+
+        response = self.client.post(
+            '/detect/ingredients/',
+            data=json.dumps({'ingredients': ['Cà chua', ' Trứng ', 'trung', '']}),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['ingredients'], ['Cà chua', 'Trứng'])
+        self.assertTrue(response.json()['changed'])
+        self.assertEqual(self._saved_names(), ['Cà chua', 'Trứng'])
+        detections = DetectedIngredient.objects.filter(
+            phien_nhan_dien=self.session
+        ).order_by('id')
+        self.assertEqual(str(detections[0].do_tin_cay), '0.9100')
+        self.assertEqual(detections[1].thuc_pham, self.egg)
+        self.assertIsNone(detections[1].do_tin_cay)
+        self.assertFalse(
+            Recommendation.objects.filter(phien_nhan_dien=self.session).exists()
+        )
+
+        detect_response = self.client.get('/detect/')
+        self.assertContains(detect_response, 'Trứng')
+        self.assertNotContains(detect_response, 'Hành lá')
+
+    def test_update_endpoint_keeps_recommendations_when_list_is_unchanged(self):
+        recipe = Recipe.objects.create(
+            ten_mon='Canh cà chua',
+            thoi_gian_nau=15,
+            cong_thuc='Nấu canh.',
+        )
+        Recommendation.objects.create(phien_nhan_dien=self.session, mon_an=recipe)
+
+        response = self.client.post(
+            '/detect/ingredients/',
+            data=json.dumps({'ingredients': ['Cà chua', 'Hành lá']}),
+            content_type='application/json',
+        )
+
+        self.assertFalse(response.json()['changed'])
+        self.assertTrue(
+            Recommendation.objects.filter(phien_nhan_dien=self.session).exists()
+        )
+
+    def test_update_endpoint_requires_successful_detection(self):
+        session_data = self.client.session
+        session_data.pop('last_recognition_session_id')
+        session_data.save()
+
+        response = self.client.post(
+            '/detect/ingredients/',
+            data=json.dumps({'ingredients': ['Trứng']}),
+            content_type='application/json',
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(self._saved_names(), ['Cà chua', 'Hành lá'])
+
+    def test_recommendation_post_saves_submitted_ingredients_before_suggesting(self):
+        captured = {}
+
+        def fake_create(session):
+            captured['names'] = list(
+                DetectedIngredient.objects.filter(phien_nhan_dien=session)
+                .order_by('id')
+                .values_list('ten_da_nhan_dien', flat=True)
+            )
+            return []
+
+        with patch(
+            'recognition.page_views.create_recommendations_for_session',
+            side_effect=fake_create,
+        ):
+            response = self.client.post('/recommendations/', {
+                'ingredients_submitted': '1',
+                'ingredients': ['Trứng', 'Cà chua'],
+            })
+
+        self.assertRedirects(response, '/recommendations/', fetch_redirect_response=False)
+        self.assertEqual(captured['names'], ['Trứng', 'Cà chua'])
+        self.assertEqual(self._saved_names(), ['Trứng', 'Cà chua'])
+
+    def test_recommendation_post_with_empty_list_does_not_suggest(self):
+        with patch(
+            'recognition.page_views.create_recommendations_for_session'
+        ) as mock_create:
+            self.client.post('/recommendations/', {'ingredients_submitted': '1'})
+            response = self.client.get('/recommendations/')
+
+        mock_create.assert_not_called()
+        self.assertEqual(self._saved_names(), [])
+        self.assertContains(response, 'Hãy thêm ít nhất một nguyên liệu')
 
 
 class IngredientDetectionTests(TestCase):

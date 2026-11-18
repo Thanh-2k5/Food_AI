@@ -12,13 +12,15 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.db import transaction
+from django.http import JsonResponse
 from django.shortcuts import render
+from django.views.decorators.http import require_POST
 from PIL import Image, ImageDraw, ImageFont, ImageOps, UnidentifiedImageError
 
 from recipes.models import Ingredient
 from recipes.ingredient_utils import normalize_ingredient_name
 
-from .models import DetectedIngredient, RecognitionSession
+from .models import DetectedIngredient, RecognitionSession, Recommendation
 
 
 XKIRO_API_URL = 'https://api.xkiro.com/v1/chat/completions'
@@ -689,7 +691,11 @@ def _detect_ingredients(uploaded_file):
     return detections, default_storage.url(output_path), output_path
 
 
-def _save_detection_results(session, detections):
+MAX_INGREDIENT_NAME_LENGTH = 100
+MAX_INGREDIENTS_PER_SESSION = 50
+
+
+def _ingredient_lookup():
     ingredients = list(
         Ingredient.objects.filter(dang_su_dung=True)
         .only('id', 'ten_thuc_pham', 'ten_chuan_hoa')
@@ -705,6 +711,65 @@ def _save_detection_results(session, detections):
             normalize_ingredient_name(ingredient.ten_thuc_pham),
             ingredient,
         )
+    return ingredient_by_name
+
+
+def clean_ingredient_names(raw_names):
+    """Trim, deduplicate (accent/case-insensitive) and cap the name list."""
+    cleaned = []
+    seen = set()
+    for raw_name in raw_names or ():
+        if not isinstance(raw_name, str):
+            continue
+        name = ' '.join(raw_name.split())[:MAX_INGREDIENT_NAME_LENGTH].strip()
+        key = normalize_ingredient_name(name)
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        cleaned.append(name)
+        if len(cleaned) >= MAX_INGREDIENTS_PER_SESSION:
+            break
+    return cleaned
+
+
+def sync_detected_ingredients(session, raw_names):
+    """Replace the session's ingredients with the user's edited list.
+
+    Returns True when the list changed. Old recommendations are removed in
+    that case so the next suggestion request uses the updated ingredients.
+    """
+    names = clean_ingredient_names(raw_names)
+    existing = list(
+        DetectedIngredient.objects.filter(phien_nhan_dien=session).order_by('id')
+    )
+    if [item.ten_da_nhan_dien for item in existing] == names:
+        return False
+
+    confidence_by_key = {}
+    for item in existing:
+        confidence_by_key.setdefault(
+            normalize_ingredient_name(item.ten_da_nhan_dien),
+            item.do_tin_cay,
+        )
+    ingredient_by_name = _ingredient_lookup()
+
+    with transaction.atomic():
+        DetectedIngredient.objects.filter(phien_nhan_dien=session).delete()
+        DetectedIngredient.objects.bulk_create([
+            DetectedIngredient(
+                phien_nhan_dien=session,
+                thuc_pham=ingredient_by_name.get(normalize_ingredient_name(name)),
+                ten_da_nhan_dien=name,
+                do_tin_cay=confidence_by_key.get(normalize_ingredient_name(name)),
+            )
+            for name in names
+        ])
+        Recommendation.objects.filter(phien_nhan_dien=session).delete()
+    return True
+
+
+def _save_detection_results(session, detections):
+    ingredient_by_name = _ingredient_lookup()
 
     with transaction.atomic():
         DetectedIngredient.objects.bulk_create([
@@ -797,3 +862,37 @@ def detect(request):
             context['recognition_session_id'] = session.pk
             context['can_recommend'] = True
     return render(request, 'detect.html', context)
+
+
+@require_POST
+def update_detected_ingredients(request):
+    session = get_active_recognition_session(request, require_success=True)
+    if session is None:
+        return JsonResponse({
+            'ok': False,
+            'error': 'Hãy nhận diện nguyên liệu thành công trước khi chỉnh sửa danh sách.',
+        }, status=400)
+
+    if request.content_type == 'application/json':
+        try:
+            payload = json.loads(request.body.decode('utf-8') or '{}')
+        except (UnicodeDecodeError, json.JSONDecodeError):
+            payload = None
+        raw_names = payload.get('ingredients') if isinstance(payload, dict) else None
+    else:
+        raw_names = request.POST.getlist('ingredients')
+    if not isinstance(raw_names, list):
+        return JsonResponse({
+            'ok': False,
+            'error': 'Dữ liệu nguyên liệu không hợp lệ.',
+        }, status=400)
+
+    changed = sync_detected_ingredients(session, raw_names)
+    if changed:
+        request.session.pop('recommendation_error', None)
+    saved_names = list(
+        DetectedIngredient.objects.filter(phien_nhan_dien=session)
+        .order_by('id')
+        .values_list('ten_da_nhan_dien', flat=True)
+    )
+    return JsonResponse({'ok': True, 'changed': changed, 'ingredients': saved_names})

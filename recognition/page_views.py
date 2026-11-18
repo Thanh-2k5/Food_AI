@@ -19,7 +19,11 @@ from .models import (
     RecognitionSession,
     Recommendation,
 )
-from .views import get_active_recognition_session
+from .views import (
+    clean_ingredient_names,
+    get_active_recognition_session,
+    sync_detected_ingredients,
+)
 
 
 def home(request):
@@ -57,7 +61,18 @@ def recommendations(request):
             request.session['recommendation_error'] = (
                 'Hãy nhận diện nguyên liệu thành công trước khi yêu cầu gợi ý.'
             )
-        elif (
+            return redirect('recommendations')
+
+        if request.POST.get('ingredients_submitted'):
+            submitted_names = request.POST.getlist('ingredients')
+            sync_detected_ingredients(recognition_session, submitted_names)
+            if not clean_ingredient_names(submitted_names):
+                request.session['recommendation_error'] = (
+                    'Hãy thêm ít nhất một nguyên liệu trước khi yêu cầu gợi ý.'
+                )
+                return redirect('recommendations')
+
+        if (
             Recommendation.objects.filter(
                 phien_nhan_dien=recognition_session,
                 mon_an__isnull=False,

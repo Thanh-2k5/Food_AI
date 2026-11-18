@@ -49,6 +49,11 @@ urlpatterns = [
     ),
     path('register/', page_views.register, name='register'),
     path('detect/', recognition_views.detect, name='detect'),
+    path(
+        'detect/ingredients/',
+        recognition_views.update_detected_ingredients,
+        name='update_detected_ingredients',
+    ),
     path('recommendations/', page_views.recommendations, name='recommendations'),
     path(
         'recipe-detail/<int:recipe_id>/',
